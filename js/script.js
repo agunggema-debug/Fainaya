@@ -284,5 +284,136 @@ document.getElementById('contactForm').addEventListener('submit', function (e) {
   alert(translations[currentLang].alert_submit);
 });
 
+/* ---------- AI Chatbot ---------- */
+const chatbotResponses = {
+  en: {
+    'it services': "We offer computer & printer repair, networking solutions, system development, and ongoing technical support. All services are handled by experienced technicians. Would you like a quote?",
+    'creative services': "Our creative team handles digital design & branding, video editing & production, custom creative projects, and handmade bags, wallets & accessories. What interests you?",
+    'pricing': "Pricing varies by project scope. We offer competitive rates and free consultations. Would you like to get a free quote? You can fill out our contact form or chat with us on WhatsApp!",
+    'contact': "You can reach us via:\n• WhatsApp: +62 813-9892-0798\n• Email: fainaya.service.art@gmail.com\n• Location: West Java, Indonesia\n\nOr fill out the contact form on our website!",
+    'hello': "Hello! 👋 Welcome to Fainaya Service & Art. How can I help you today?",
+    'hi': "Hi there! 👋 How can I assist you?",
+    'thanks': "You're welcome! 😊 Feel free to ask if you have more questions.",
+    'thank you': "You're welcome! 😊 Feel free to ask if you have more questions."
+  },
+  id: {
+    'it services': "Kami menawarkan perbaikan komputer & printer, solusi jaringan, pengembangan sistem, dan dukungan teknis berkelanjutan. Semua layanan ditangani oleh teknisi berpengalaman. Apakah Anda ingin penawaran?",
+    'creative services': "Tim kreatif kami menangani desain digital & branding, editing & produksi video, proyek kreatif kustom, serta tas, dompet & aksesoris buatan tangan. Apa yang menarik bagi Anda?",
+    'pricing': "Harga bervariasi berdasarkan cakupan proyek. Kami menawarkan tarif kompetitif dan konsultasi gratis. Apakah Anda ingin penawaran gratis? Isi formulir kontak atau chat kami di WhatsApp!",
+    'contact': "Anda bisa menghubungi kami melalui:\n• WhatsApp: +62 813-9892-0798\n• Email: fainaya.service.art@gmail.com\n• Lokasi: Jawa Barat, Indonesia\n\nAtau isi formulir kontak di website kami!",
+    'hello': "Halo! 👋 Selamat datang di Fainaya Service & Art. Ada yang bisa saya bantu hari ini?",
+    'hi': "Hai! 👋 Ada yang bisa saya bantu?",
+    'thanks': "Sama-sama! 😊 Jangan ragu untuk bertanya lagi jika ada yang perlu.",
+    'thank you': "Sama-sama! 😊 Jangan ragu untuk bertanya lagi jika ada yang perlu."
+  }
+};
+
+function toggleChat() {
+  const chatWindow = document.getElementById('chatWindow');
+  const chatIcon = document.getElementById('chatIcon');
+  const chatCloseIcon = document.getElementById('chatCloseIcon');
+  const isOpen = !chatWindow.classList.contains('hidden');
+
+  chatWindow.classList.toggle('hidden', isOpen);
+  chatIcon.classList.toggle('hidden', !isOpen);
+  chatCloseIcon.classList.toggle('hidden', isOpen);
+}
+
+function addBotMessage(text) {
+  const messages = document.getElementById('chatMessages');
+  const msgDiv = document.createElement('div');
+  msgDiv.className = 'chatbot-msg bot';
+  msgDiv.innerHTML = `
+    <div class="chatbot-avatar">
+      <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"/></svg>
+    </div>
+    <div class="chatbot-bubble"><p>${text.replace(/\n/g, '</p><p>')}</p></div>
+  `;
+  messages.appendChild(msgDiv);
+  messages.scrollTop = messages.scrollHeight;
+}
+
+function addUserMessage(text) {
+  const messages = document.getElementById('chatMessages');
+  const msgDiv = document.createElement('div');
+  msgDiv.className = 'chatbot-msg user';
+  msgDiv.innerHTML = `
+    <div class="chatbot-avatar">
+      <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+    </div>
+    <div class="chatbot-bubble"><p>${text}</p></div>
+  `;
+  messages.appendChild(msgDiv);
+  messages.scrollTop = messages.scrollHeight;
+}
+
+function showTyping() {
+  const messages = document.getElementById('chatMessages');
+  const typing = document.createElement('div');
+  typing.className = 'chatbot-msg bot';
+  typing.id = 'chatTyping';
+  typing.innerHTML = `
+    <div class="chatbot-avatar">
+      <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"/></svg>
+    </div>
+    <div class="chatbot-typing"><span></span><span></span><span></span></div>
+  `;
+  messages.appendChild(typing);
+  messages.scrollTop = messages.scrollHeight;
+}
+
+function removeTyping() {
+  const typing = document.getElementById('chatTyping');
+  if (typing) typing.remove();
+}
+
+function getBotResponse(input) {
+  const lang = currentLang;
+  const lower = input.toLowerCase().trim();
+  const responses = chatbotResponses[lang] || chatbotResponses.en;
+
+  for (const [key, value] of Object.entries(responses)) {
+    if (lower.includes(key)) return value;
+  }
+
+  return lang === 'id'
+    ? "Terima kasih atas pesannya! Untuk informasi lebih lanjut, silakan hubungi kami via WhatsApp di +62 813-9892-0798 atau isi formulir kontak di website."
+    : "Thank you for your message! For more information, please contact us via WhatsApp at +62 813-9892-0798 or fill out the contact form on our website.";
+}
+
+function sendChatMessage() {
+  const input = document.getElementById('chatInput');
+  const text = input.value.trim();
+  if (!text) return;
+
+  addUserMessage(text);
+  input.value = '';
+
+  showTyping();
+
+  setTimeout(() => {
+    removeTyping();
+    addBotMessage(getBotResponse(text));
+  }, 800 + Math.random() * 600);
+}
+
+function sendQuickMessage(text) {
+  addUserMessage(text);
+
+  showTyping();
+
+  setTimeout(() => {
+    removeTyping();
+    addBotMessage(getBotResponse(text));
+  }, 800 + Math.random() * 600);
+}
+
+function handleChatKeypress(e) {
+  if (e.key === 'Enter') sendChatMessage();
+}
+
+// Close button inside chat window
+document.getElementById('chatClose').addEventListener('click', toggleChat);
+
 /* ---------- Init ---------- */
 setLanguage(currentLang);
