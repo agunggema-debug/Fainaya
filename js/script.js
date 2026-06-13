@@ -93,7 +93,154 @@ const translations = {
     footer_about: "About Us",
     footer_services: "Our Services",
     footer_rights: "All rights reserved.",
-    alert_submit: "Thank you! Redirecting you to WhatsApp..."
+    alert_submit: "Thank you! Redirecting you to WhatsApp...",
+    sec_back: "Back to Home",
+    sec_title_1: "Security",
+    sec_title_2: "Policy",
+    sec_subtitle: "Security Policy — Fainaya Service and Art",
+    sec_intro: "Fainaya Service and Art is committed to maintaining the security of information and visitor privacy. This document explains how we manage security on our landing page platform.",
+    sec_s1_title: "Data Management",
+    sec_s1_h1: "User Privacy",
+    sec_s1_d1: "We only collect necessary information through the contact form. Data is managed with due diligence and is not shared with third parties without permission.",
+    sec_s1_h2: "Data Security",
+    sec_s1_d2: "Information submitted through this platform is processed with adequate security standards to prevent unauthorized access.",
+    sec_s2_title: "Technical Standards",
+    sec_s2_intro: "We implement the following security measures on our systems:",
+    sec_s2_h1: "Encryption",
+    sec_s2_d1: "All data traffic on this site is protected using the HTTPS protocol (SSL/TLS) to ensure data encryption between client and server.",
+    sec_s2_h2: "Code Maintenance",
+    sec_s2_d2: "We perform routine updates on dependencies to close discovered security vulnerabilities.",
+    sec_s2_h3: "Development Practices",
+    sec_s2_d3: "Our code is managed with best practices to avoid leaking sensitive information (such as API keys or access credentials).",
+    sec_s3_title: "Vulnerability Reporting",
+    sec_s3_desc: "Security is a shared responsibility. If you find a security vulnerability or privacy issue related to our site, please contact us immediately via:",
+    sec_s3_email_label: "Email:",
+    sec_s3_subject_label: "Subject:",
+    sec_s3_subject_value: "Security Report - Fainaya Service and Art",
+    sec_s4_title: "Compliance",
+    sec_s4_desc: "We strive to align our operational practices with internationally recognized information security principles to provide trusted services to our clients in the fields of services and arts.",
+    sec_last_updated: "This document was last updated on: June 13, 2026",
+    sec_nav_title: "Security Policy",
+    nav_security: "Security Policy"
+  },
+  zh: {
+    nav_home: "首页",
+    nav_services: "服务",
+    nav_about: "关于",
+    nav_contact: "联系",
+    nav_cta: "获取报价",
+    hero_badge: "IT解决方案与创意服务",
+    hero_title_1: "技术",
+    hero_title_2: "与",
+    hero_title_3: "创意",
+    hero_title_4: "的交汇",
+    hero_subtitle: "从电脑维修和网络搭建到数字设计和手工包、钱包及配饰——我们为您的技术和创意需求提供专业解决方案，一站式服务。",
+    hero_cta_primary: "免费获取报价",
+    hero_cta_secondary: "探索服务",
+    trust_1: "值得信赖的本地企业",
+    trust_2: "质量保证",
+    trust_3: "快速交付",
+    services_badge: "我们的服务",
+    services_title_1: "卓越的",
+    services_title_2: "两大支柱",
+    services_subtitle: "我们将技术专长与创意视野相结合，为个人和企业提供全面的解决方案。",
+    it_title: "IT服务与技术支持",
+    it_subtitle: "可靠的技术解决方案，确保您的系统平稳高效运行。",
+    it_1_title: "电脑与打印机维修",
+    it_1_desc: "硬件诊断、组件更换和全面系统恢复。",
+    it_2_title: "网络解决方案",
+    it_2_desc: "局域网/广域网搭建、Wi-Fi优化和网络安全配置。",
+    it_3_title: "系统开发",
+    it_3_desc: "定制软件、Web应用和数据库管理系统。",
+    it_4_title: "技术支持",
+    it_4_desc: "持续的IT维护、故障排除和远程/现场协助。",
+    creative_title: "多媒体与创意艺术",
+    creative_subtitle: "用精美的视觉效果和手工设计为您的品牌注入活力。",
+    creative_1_title: "数字设计与品牌",
+    creative_1_desc: "Logo、品牌标识、社交媒体图形和营销材料。",
+    creative_2_title: "视频编辑与制作",
+    creative_2_desc: "专业视频编辑、动态图形和推广内容。",
+    creative_3_title: "定制创意项目",
+    creative_3_desc: "从概念到最终交付的量身定制创意解决方案。",
+    creative_4_title: "手工包、钱包与配饰",
+    creative_4_desc: "精心制作的手工包、钱包和其他独特配饰。",
+    about_badge: "关于我们",
+    about_title_1: "您值得信赖的本地合作伙伴",
+    about_title_2: "技术与创意",
+    about_p1: "在Fainaya Service & Art，我们相信技术与创意相辅相成。作为一家致力于服务社区的本地企业，我们提供从IT支持和系统开发到多媒体设计和手工创作的全方位解决方案。",
+    about_p2: "无论您需要维修损坏的电脑、搭建网络、设计品牌标识，还是定制手工包或钱包——我们经验丰富的技术团队和艺术家团队随时为您提供高质量的个性化服务。",
+    stat_projects: "已完成项目",
+    stat_clients: "满意客户",
+    stat_support: "支持",
+    card_tech: "技术专长",
+    card_creative: "创意视野",
+    card_quote: '"将技术的精准与艺术的美感相结合，为您提供更好的服务。"',
+    contact_badge: "联系我们",
+    contact_title_1: "准备好",
+    contact_title_2: "开始了吗？",
+    contact_subtitle: "填写下方表单或直接联系我们，我们将尽快回复您。",
+    form_name: "姓名",
+    form_email: "电子邮件",
+    form_phone: "电话号码",
+    form_service: "所需服务",
+    form_service_default: "选择服务",
+    form_message: "留言",
+    form_submit: "发送咨询",
+    placeholder_name: "张三",
+    placeholder_message: "请告诉我们您的项目或问题...",
+    opt_computer_repair: "电脑与打印机维修",
+    opt_networking: "网络解决方案",
+    opt_system_dev: "系统开发",
+    opt_tech_support: "技术支持",
+    opt_digital_design: "数字设计与品牌",
+    opt_video_editing: "视频编辑与制作",
+    opt_creative_projects: "定制创意项目",
+    opt_handmade: "手工包、钱包与配饰",
+    opt_other: "其他",
+    whatsapp_title: "WhatsApp联系",
+    whatsapp_desc: "快速回复 • 立即聊天",
+    email_title: "邮件联系",
+    location_title: "地址",
+    location_value: "西爪哇，印度尼西亚",
+    hours_title: "营业时间",
+    hours_weekday: "周一至周五",
+    hours_saturday: "周六",
+    hours_sunday: "周日",
+    hours_closed: "休息",
+    footer_desc: "您值得信赖的本地IT解决方案和创意服务合作伙伴。技术与创意的交汇之处。",
+    footer_quick_links: "快速链接",
+    footer_about: "关于我们",
+    footer_services: "我们的服务",
+    footer_rights: "版权所有。",
+    alert_submit: "感谢您！正在跳转到WhatsApp...",
+    sec_back: "返回首页",
+    sec_title_1: "安全",
+    sec_title_2: "政策",
+    sec_subtitle: "安全政策 — Fainaya Service and Art",
+    sec_intro: "Fainaya Service and Art致力于维护信息安全和访客隐私。本文档说明了我们如何管理着陆页平台的安全性。",
+    sec_s1_title: "数据管理",
+    sec_s1_h1: "用户隐私",
+    sec_s1_d1: "我们仅通过联系表单收集必要的信息。数据以谨慎原则管理，未经许可不会与第三方共享。",
+    sec_s1_h2: "数据安全",
+    sec_s1_d2: "通过本平台提交的信息以充分的安全标准进行处理，以防止未经授权的访问。",
+    sec_s2_title: "技术标准",
+    sec_s2_intro: "我们在系统上实施以下安全措施：",
+    sec_s2_h1: "加密",
+    sec_s2_d1: "本站所有数据流量均使用HTTPS协议（SSL/TLS）保护，以确保客户端和服务器之间的数据加密。",
+    sec_s2_h2: "代码维护",
+    sec_s2_d2: "我们定期更新依赖项，以关闭已发现的安全漏洞。",
+    sec_s2_h3: "开发实践",
+    sec_s2_d3: "我们的代码以最佳实践管理，以避免泄露敏感信息（如API密钥或访问凭据）。",
+    sec_s3_title: "漏洞报告",
+    sec_s3_desc: "安全是共同的责任。如果您发现与我们网站相关的安全漏洞或隐私问题，请立即通过以下方式联系我们：",
+    sec_s3_email_label: "邮箱：",
+    sec_s3_subject_label: "主题：",
+    sec_s3_subject_value: "安全报告 - Fainaya Service and Art",
+    sec_s4_title: "合规",
+    sec_s4_desc: "我们努力使运营实践与国际公认的信息安全原则保持一致，为我们在服务和艺术领域的客户提供可信赖的服务。",
+    sec_last_updated: "本文档最后更新于：2026年6月13日",
+    sec_nav_title: "安全政策",
+    nav_security: "安全政策"
   },
   id: {
     nav_home: "Beranda",
@@ -184,77 +331,89 @@ const translations = {
     footer_about: "Tentang Kami",
     footer_services: "Layanan Kami",
     footer_rights: "Hak cipta dilindungi.",
-    alert_submit: "Terima kasih! Mengarahkan Anda ke WhatsApp..."
+    alert_submit: "Terima kasih! Mengarahkan Anda ke WhatsApp...",
+    sec_back: "Kembali ke Beranda",
+    sec_title_1: "Kebijakan",
+    sec_title_2: "Keamanan",
+    sec_subtitle: "Kebijakan Keamanan — Fainaya Service and Art",
+    sec_intro: "Fainaya Service and Art berkomitmen untuk menjaga keamanan informasi dan privasi pengunjung. Dokumen ini menjelaskan bagaimana kami mengelola keamanan pada platform landing page kami.",
+    sec_s1_title: "Pengelolaan Data",
+    sec_s1_h1: "Privasi Pengguna",
+    sec_s1_d1: "Kami hanya mengumpulkan informasi yang diperlukan melalui formulir kontak. Data tersebut dikelola dengan prinsip kehati-hatian dan tidak dibagikan kepada pihak ketiga tanpa izin.",
+    sec_s1_h2: "Keamanan Data",
+    sec_s1_d2: "Informasi yang dikirimkan melalui platform ini diproses dengan standar keamanan yang memadai untuk mencegah akses yang tidak sah.",
+    sec_s2_title: "Standar Teknis",
+    sec_s2_intro: "Kami menerapkan langkah-langkah keamanan berikut pada sistem kami:",
+    sec_s2_h1: "Enkripsi",
+    sec_s2_d1: "Seluruh lalu lintas data di situs ini dilindungi menggunakan protokol HTTPS (SSL/TLS) untuk memastikan enkripsi data antara klien dan server.",
+    sec_s2_h2: "Pemeliharaan Kode",
+    sec_s2_d2: "Kami melakukan pembaruan rutin pada dependencies untuk menutup celah keamanan yang ditemukan.",
+    sec_s2_h3: "Praktik Pengembangan",
+    sec_s2_d3: "Kode kami dikelola dengan praktik terbaik untuk menghindari kebocoran informasi sensitif (seperti API keys atau kredensial akses).",
+    sec_s3_title: "Pelaporan Kerentanan",
+    sec_s3_desc: "Keamanan adalah tanggung jawab bersama. Jika Anda menemukan kerentanan keamanan atau masalah privasi terkait situs kami, mohon segera hubungi kami melalui:",
+    sec_s3_email_label: "Email:",
+    sec_s3_subject_label: "Subjek:",
+    sec_s3_subject_value: "Laporan Keamanan - Fainaya Service and Art",
+    sec_s4_title: "Kepatuhan",
+    sec_s4_desc: "Kami berupaya untuk menyelaraskan praktik operasional kami dengan prinsip-prinsip keamanan informasi yang diakui secara internasional untuk memberikan layanan yang tepercaya kepada klien kami di bidang jasa dan seni.",
+    sec_last_updated: "Dokumen ini diperbarui terakhir pada: 13 Juni 2026",
+    sec_nav_title: "Kebijakan Keamanan",
+    nav_security: "Kebijakan Keamanan"
   }
 };
 
-/* ---------- Language System ---------- */
+/* ---------- Current Language ---------- */
 let currentLang = localStorage.getItem('fainaya-lang') || 'en';
 
+/* ---------- Set Language ---------- */
 function setLanguage(lang) {
   currentLang = lang;
   localStorage.setItem('fainaya-lang', lang);
-  document.documentElement.lang = lang === 'id' ? 'id' : 'en';
 
+  // Update all data-i18n elements
   document.querySelectorAll('[data-i18n]').forEach(el => {
     const key = el.getAttribute('data-i18n');
-    if (translations[lang][key]) el.textContent = translations[lang][key];
+    if (translations[lang] && translations[lang][key]) {
+      el.textContent = translations[lang][key];
+    }
   });
 
+  // Update placeholders
   const nameInput = document.getElementById('name');
-  const msgInput = document.getElementById('message');
-  if (nameInput) nameInput.placeholder = translations[lang].placeholder_name;
-  if (msgInput) msgInput.placeholder = translations[lang].placeholder_message;
+  const messageInput = document.getElementById('message');
+  if (nameInput && translations[lang].placeholder_name) {
+    nameInput.placeholder = translations[lang].placeholder_name;
+  }
+  if (messageInput && translations[lang].placeholder_message) {
+    messageInput.placeholder = translations[lang].placeholder_message;
+  }
 
-  updateLangButtons(lang);
-}
-
-function updateLangButtons(lang) {
-  const allBtns = [
-    document.getElementById('langEn'),
-    document.getElementById('langId'),
-    document.getElementById('langEnMobile'),
-    document.getElementById('langIdMobile')
-  ].filter(Boolean);
-
-  allBtns.forEach(btn => {
+  // Update active state on language buttons (desktop)
+  document.querySelectorAll('.lang-btn').forEach(btn => {
     btn.classList.remove('active');
     btn.classList.add('text-slate-500');
   });
 
-  const activeBtns = lang === 'en'
-    ? [document.getElementById('langEn'), document.getElementById('langEnMobile')]
-    : [document.getElementById('langId'), document.getElementById('langIdMobile')];
+  // Desktop buttons
+  const enBtn = document.getElementById('langEn');
+  const idBtn = document.getElementById('langId');
+  const zhBtn = document.getElementById('langZh');
+  if (enBtn) { enBtn.classList.toggle('active', lang === 'en'); enBtn.classList.toggle('text-slate-500', lang !== 'en'); }
+  if (idBtn) { idBtn.classList.toggle('active', lang === 'id'); idBtn.classList.toggle('text-slate-500', lang !== 'id'); }
+  if (zhBtn) { zhBtn.classList.toggle('active', lang === 'zh'); zhBtn.classList.toggle('text-slate-500', lang !== 'zh'); }
 
-  activeBtns.filter(Boolean).forEach(btn => {
-    btn.classList.add('active');
-    btn.classList.remove('text-slate-500');
-  });
+  // Mobile buttons
+  const enBtnM = document.getElementById('langEnMobile');
+  const idBtnM = document.getElementById('langIdMobile');
+  const zhBtnM = document.getElementById('langZhMobile');
+  if (enBtnM) { enBtnM.classList.toggle('active', lang === 'en'); enBtnM.classList.toggle('text-slate-500', lang !== 'en'); }
+  if (idBtnM) { idBtnM.classList.toggle('active', lang === 'id'); idBtnM.classList.toggle('text-slate-500', lang !== 'id'); }
+  if (zhBtnM) { zhBtnM.classList.toggle('active', lang === 'zh'); zhBtnM.classList.toggle('text-slate-500', lang !== 'zh'); }
+
+  // Update HTML lang attribute
+  document.documentElement.lang = lang === 'zh' ? 'zh-CN' : lang;
 }
-
-/* ---------- Mobile Menu ---------- */
-const mobileMenuBtn = document.getElementById('mobileMenuBtn');
-const mobileMenu = document.getElementById('mobileMenu');
-let menuOpen = false;
-
-mobileMenuBtn.addEventListener('click', () => {
-  menuOpen = !menuOpen;
-  mobileMenu.classList.toggle('hidden', !menuOpen);
-});
-
-mobileMenu.querySelectorAll('a').forEach(link => {
-  link.addEventListener('click', () => {
-    menuOpen = false;
-    mobileMenu.classList.add('hidden');
-  });
-});
-
-/* ---------- Navbar Scroll ---------- */
-const navbar = document.getElementById('navbar');
-
-window.addEventListener('scroll', () => {
-  navbar.classList.toggle('shadow-lg', window.scrollY > 50);
-});
 
 /* ---------- Smooth Scroll ---------- */
 document.querySelectorAll('a[href^="#"]').forEach(anchor => {
@@ -295,6 +454,16 @@ const chatbotResponses = {
     'hi': "Hi there! 👋 How can I assist you?",
     'thanks': "You're welcome! 😊 Feel free to ask if you have more questions.",
     'thank you': "You're welcome! 😊 Feel free to ask if you have more questions."
+  },
+  zh: {
+    'it services': "我们提供电脑和打印机维修、网络解决方案、系统开发以及持续的技术支持。所有服务由经验丰富的技术人员提供。您需要报价吗？",
+    'creative services': "我们的创意团队负责数字设计与品牌、视频编辑与制作、定制创意项目以及手工包、钱包和配饰。您对什么感兴趣？",
+    'pricing': "价格因项目范围而异。我们提供有竞争力的价格和免费咨询。您想获取免费报价吗？您可以填写我们的联系表单或在WhatsApp上与我们聊天！",
+    'contact': "您可以通过以下方式联系我们：\n• WhatsApp: +62 813-9892-0798\n• 邮箱: fainaya.service.art@gmail.com\n• 地址: 西爪哇，印度尼西亚\n\n或填写我们网站上的联系表单！",
+    'hello': "您好！👋 欢迎来到Fainaya Service & Art。今天我能帮您什么？",
+    'hi': "您好！👋 有什么可以帮您的？",
+    'thanks': "不客气！😊 如果有更多问题，随时提问。",
+    'thank you': "不客气！😊 如果有更多问题，随时提问。"
   },
   id: {
     'it services': "Kami menawarkan perbaikan komputer & printer, solusi jaringan, pengembangan sistem, dan dukungan teknis berkelanjutan. Semua layanan ditangani oleh teknisi berpengalaman. Apakah Anda ingin penawaran?",
@@ -376,9 +545,9 @@ function getBotResponse(input) {
     if (lower.includes(key)) return value;
   }
 
-  return lang === 'id'
-    ? "Terima kasih atas pesannya! Untuk informasi lebih lanjut, silakan hubungi kami via WhatsApp di +62 813-9892-0798 atau isi formulir kontak di website."
-    : "Thank you for your message! For more information, please contact us via WhatsApp at +62 813-9892-0798 or fill out the contact form on our website.";
+  if (lang === 'zh') return "感谢您的留言！如需更多信息，请通过WhatsApp +62 813-9892-0798联系我们，或填写网站上的联系表单。";
+  if (lang === 'id') return "Terima kasih atas pesannya! Untuk informasi lebih lanjut, silakan hubungi kami via WhatsApp di +62 813-9892-0798 atau isi formulir kontak di website.";
+  return "Thank you for your message! For more information, please contact us via WhatsApp at +62 813-9892-0798 or fill out the contact form on our website.";
 }
 
 function sendChatMessage() {
