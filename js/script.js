@@ -48,8 +48,10 @@ const translations = {
     about_badge: "About Us",
     about_title_1: "Your Trusted Local Partner for",
     about_title_2: "Tech & Creativity",
-    about_p1: "At Fainaya Service & Art, we believe that technology and creativity go hand in hand. Founded as a local business dedicated to serving our community, we provide end-to-end solutions that span from essential IT support and system development to stunning multimedia design and handcrafted creations.",
-    about_p2: "Whether you need a broken computer repaired, a network set up, a brand identity designed, or a custom handmade bag or wallet — our team of skilled technicians and artists is here to deliver quality work with a personal touch.",
+    about_p1:
+      "At Fainaya Service & Art, we believe that technology and creativity go hand in hand. Founded as a local business dedicated to serving our community, we provide end-to-end solutions that span from essential IT support and system development to stunning multimedia design and handcrafted creations.",
+    about_p2:
+      "Whether you need a broken computer repaired, a network set up, a brand identity designed, or a custom handmade bag or wallet — our team of skilled technicians and artists is here to deliver quality work with a personal touch.",
     stat_projects: "Projects Done",
     stat_clients: "Happy Clients",
     stat_support: "Support",
@@ -121,7 +123,7 @@ const translations = {
     sec_s4_desc: "We strive to align our operational practices with internationally recognized information security principles to provide trusted services to our clients in the fields of services and arts.",
     sec_last_updated: "This document was last updated on: June 13, 2026",
     sec_nav_title: "Security Policy",
-    nav_security: "Security Policy"
+    nav_security: "Security Policy",
   },
   zh: {
     nav_home: "首页",
@@ -240,7 +242,7 @@ const translations = {
     sec_s4_desc: "我们努力使运营实践与国际公认的信息安全原则保持一致，为我们在服务和艺术领域的客户提供可信赖的服务。",
     sec_last_updated: "本文档最后更新于：2026年6月13日",
     sec_nav_title: "安全政策",
-    nav_security: "安全政策"
+    nav_security: "安全政策",
   },
   id: {
     nav_home: "Beranda",
@@ -286,8 +288,10 @@ const translations = {
     about_badge: "Tentang Kami",
     about_title_1: "Mitra Lokal Terpercaya Anda untuk",
     about_title_2: "Teknologi & Kreativitas",
-    about_p1: "Di Fainaya Service & Art, kami percaya bahwa teknologi dan kreativitas berjalan beriringan. Didirikan sebagai bisnis lokal yang berkomitmen melayani komunitas kami, kami menyediakan solusi menyeluruh mulai dari dukungan TI dan pengembangan sistem hingga desain multimedia yang memukau dan kerajinan buatan tangan.",
-    about_p2: "Apakah Anda perlu memperbaiki komputer yang rusak, mengatur jaringan, mendesain identitas merek, atau tas dan dompet buatan tangan khusus — tim teknisi dan seniman ahli kami siap memberikan pekerjaan berkualitas dengan sentuhan pribadi.",
+    about_p1:
+      "Di Fainaya Service & Art, kami percaya bahwa teknologi dan kreativitas berjalan beriringan. Didirikan sebagai bisnis lokal yang berkomitmen melayani komunitas kami, kami menyediakan solusi menyeluruh mulai dari dukungan TI dan pengembangan sistem hingga desain multimedia yang memukau dan kerajinan buatan tangan.",
+    about_p2:
+      "Apakah Anda perlu memperbaiki komputer yang rusak, mengatur jaringan, mendesain identitas merek, atau tas dan dompet buatan tangan khusus — tim teknisi dan seniman ahli kami siap memberikan pekerjaan berkualitas dengan sentuhan pribadi.",
     stat_projects: "Proyek Selesai",
     stat_clients: "Klien Puas",
     stat_support: "Dukungan",
@@ -359,29 +363,29 @@ const translations = {
     sec_s4_desc: "Kami berupaya untuk menyelaraskan praktik operasional kami dengan prinsip-prinsip keamanan informasi yang diakui secara internasional untuk memberikan layanan yang tepercaya kepada klien kami di bidang jasa dan seni.",
     sec_last_updated: "Dokumen ini diperbarui terakhir pada: 13 Juni 2026",
     sec_nav_title: "Kebijakan Keamanan",
-    nav_security: "Kebijakan Keamanan"
-  }
+    nav_security: "Kebijakan Keamanan",
+  },
 };
 
 /* ---------- Current Language ---------- */
-let currentLang = localStorage.getItem('fainaya-lang') || 'en';
+let currentLang = localStorage.getItem("fainaya-lang") || "en";
 
 /* ---------- Set Language ---------- */
 function setLanguage(lang) {
   currentLang = lang;
-  localStorage.setItem('fainaya-lang', lang);
+  localStorage.setItem("fainaya-lang", lang);
 
   // Update all data-i18n elements
-  document.querySelectorAll('[data-i18n]').forEach(el => {
-    const key = el.getAttribute('data-i18n');
+  document.querySelectorAll("[data-i18n]").forEach((el) => {
+    const key = el.dataset.i18n;
     if (translations[lang] && translations[lang][key]) {
       el.textContent = translations[lang][key];
     }
   });
 
   // Update placeholders
-  const nameInput = document.getElementById('name');
-  const messageInput = document.getElementById('message');
+  const nameInput = document.getElementById("name");
+  const messageInput = document.getElementById("message");
   if (nameInput && translations[lang].placeholder_name) {
     nameInput.placeholder = translations[lang].placeholder_name;
   }
@@ -390,47 +394,128 @@ function setLanguage(lang) {
   }
 
   // Update active state on language buttons (desktop)
-  document.querySelectorAll('.lang-btn').forEach(btn => {
-    btn.classList.remove('active');
-    btn.classList.add('text-slate-500');
+  document.querySelectorAll(".lang-btn").forEach((btn) => {
+    btn.classList.remove("active");
+    btn.classList.add("text-slate-500");
   });
 
   // Desktop buttons
-  const enBtn = document.getElementById('langEn');
-  const idBtn = document.getElementById('langId');
-  const zhBtn = document.getElementById('langZh');
-  if (enBtn) { enBtn.classList.toggle('active', lang === 'en'); enBtn.classList.toggle('text-slate-500', lang !== 'en'); }
-  if (idBtn) { idBtn.classList.toggle('active', lang === 'id'); idBtn.classList.toggle('text-slate-500', lang !== 'id'); }
-  if (zhBtn) { zhBtn.classList.toggle('active', lang === 'zh'); zhBtn.classList.toggle('text-slate-500', lang !== 'zh'); }
+  const enBtn = document.getElementById("langEn");
+  const idBtn = document.getElementById("langId");
+  const zhBtn = document.getElementById("langZh");
+  if (enBtn) {
+    enBtn.classList.toggle("active", lang === "en");
+    enBtn.classList.toggle("text-slate-500", lang !== "en");
+  }
+  if (idBtn) {
+    idBtn.classList.toggle("active", lang === "id");
+    idBtn.classList.toggle("text-slate-500", lang !== "id");
+  }
+  if (zhBtn) {
+    zhBtn.classList.toggle("active", lang === "zh");
+    zhBtn.classList.toggle("text-slate-500", lang !== "zh");
+  }
 
   // Mobile buttons
-  const enBtnM = document.getElementById('langEnMobile');
-  const idBtnM = document.getElementById('langIdMobile');
-  const zhBtnM = document.getElementById('langZhMobile');
-  if (enBtnM) { enBtnM.classList.toggle('active', lang === 'en'); enBtnM.classList.toggle('text-slate-500', lang !== 'en'); }
-  if (idBtnM) { idBtnM.classList.toggle('active', lang === 'id'); idBtnM.classList.toggle('text-slate-500', lang !== 'id'); }
-  if (zhBtnM) { zhBtnM.classList.toggle('active', lang === 'zh'); zhBtnM.classList.toggle('text-slate-500', lang !== 'zh'); }
+  const enBtnM = document.getElementById("langEnMobile");
+  const idBtnM = document.getElementById("langIdMobile");
+  const zhBtnM = document.getElementById("langZhMobile");
+  if (enBtnM) {
+    enBtnM.classList.toggle("active", lang === "en");
+    enBtnM.classList.toggle("text-slate-500", lang !== "en");
+  }
+  if (idBtnM) {
+    idBtnM.classList.toggle("active", lang === "id");
+    idBtnM.classList.toggle("text-slate-500", lang !== "id");
+  }
+  if (zhBtnM) {
+    zhBtnM.classList.toggle("active", lang === "zh");
+    zhBtnM.classList.toggle("text-slate-500", lang !== "zh");
+  }
 
   // Update HTML lang attribute
-  document.documentElement.lang = lang === 'zh' ? 'zh-CN' : lang;
+  document.documentElement.lang = lang === "zh" ? "zh-CN" : lang;
 }
 
+/* ---------- Mobile Menu Logic ---------- */
+function toggleMobileMenu() {
+  const menu = document.getElementById("mobileMenu");
+  const isOpen = menu.classList.contains("open");
+  if (isOpen) closeMobileMenu();
+  else openMobileMenu();
+}
+
+function openMobileMenu() {
+  const menu = document.getElementById("mobileMenu");
+  const overlay = document.getElementById("mobileOverlay");
+  const btn = document.getElementById("mobileMenuBtn");
+
+  menu.classList.remove("hidden");
+  overlay.classList.remove("hidden");
+
+  setTimeout(() => {
+    menu.classList.add("open");
+    menu.style.transform = "translateX(0)";
+    overlay.classList.add("open");
+  }, 10);
+  
+  btn.classList.add("is-active");
+  btn.setAttribute("aria-expanded", "true");
+  document.body.classList.add("menu-open");
+}
+
+function closeMobileMenu() {
+  const menu = document.getElementById("mobileMenu");
+  const overlay = document.getElementById("mobileOverlay");
+  const btn = document.getElementById("mobileMenuBtn");
+
+  menu.classList.remove("open");
+  menu.style.transform = "translateX(100%)";
+  overlay.classList.remove("open");
+  btn.classList.remove("is-active");
+  btn.setAttribute("aria-expanded", "false");
+  document.body.classList.remove("menu-open");
+
+  setTimeout(() => {
+    if (!menu.classList.contains("open")) {
+      overlay.classList.add("hidden");
+      menu.classList.add("hidden");
+    }
+  }, 500);
+}
+
+// Event Listeners
+document.getElementById("mobileMenuBtn").addEventListener("click", toggleMobileMenu);
+document.getElementById("mobileOverlay").addEventListener("click", closeMobileMenu);
+
+document.addEventListener("keydown", function (e) {
+  if (e.key === "Escape") closeMobileMenu();
+});
+
+let resizeTimer;
+window.addEventListener("resize", function () {
+  clearTimeout(resizeTimer);
+  resizeTimer = setTimeout(function () {
+    if (window.innerWidth >= 768) closeMobileMenu();
+  }, 100);
+});
+
 /* ---------- Smooth Scroll ---------- */
-document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-  anchor.addEventListener('click', function (e) {
+document.querySelectorAll('a[href^="#"]').forEach((anchor) => {
+  anchor.addEventListener("click", function (e) {
     e.preventDefault();
-    const target = document.querySelector(this.getAttribute('href'));
+    const target = document.querySelector(this.getAttribute("href"));
     if (target) {
       window.scrollTo({
         top: target.getBoundingClientRect().top + window.pageYOffset - 80,
-        behavior: 'smooth'
+        behavior: "smooth",
       });
     }
   });
 });
 
 /* ---------- Contact Form ---------- */
-document.getElementById('contactForm').addEventListener('submit', function (e) {
+document.getElementById("contactForm").addEventListener("submit", function (e) {
   e.preventDefault();
   const { name, email, phone, service, message } = Object.fromEntries(new FormData(this));
 
@@ -438,7 +523,7 @@ document.getElementById('contactForm').addEventListener('submit', function (e) {
   if (phone) msg += `Phone: ${phone}%0A`;
   msg += `Service: ${service}%0AMessage: ${message}`;
 
-  window.open(`https://wa.me/6281398920798?text=${msg}`, '_blank');
+  window.open(`https://wa.me/6281398920798?text=${msg}`, "_blank");
   this.reset();
   alert(translations[currentLang].alert_submit);
 });
@@ -446,66 +531,66 @@ document.getElementById('contactForm').addEventListener('submit', function (e) {
 /* ---------- AI Chatbot ---------- */
 const chatbotResponses = {
   en: {
-    'it services': "We offer computer & printer repair, networking solutions, system development, and ongoing technical support. All services are handled by experienced technicians. Would you like a quote?",
-    'creative services': "Our creative team handles digital design & branding, video editing & production, custom creative projects, and handmade bags, wallets & accessories. What interests you?",
-    'pricing': "Pricing varies by project scope. We offer competitive rates and free consultations. Would you like to get a free quote? You can fill out our contact form or chat with us on WhatsApp!",
-    'contact': "You can reach us via:\n• WhatsApp: +62 813-9892-0798\n• Email: fainaya.service.art@gmail.com\n• Location: West Java, Indonesia\n\nOr fill out the contact form on our website!",
-    'hello': "Hello! 👋 Welcome to Fainaya Service & Art. How can I help you today?",
-    'hi': "Hi there! 👋 How can I assist you?",
-    'thanks': "You're welcome! 😊 Feel free to ask if you have more questions.",
-    'thank you': "You're welcome! 😊 Feel free to ask if you have more questions."
+    "it services": "We offer computer & printer repair, networking solutions, system development, and ongoing technical support. All services are handled by experienced technicians. Would you like a quote?",
+    "creative services": "Our creative team handles digital design & branding, video editing & production, custom creative projects, and handmade bags, wallets & accessories. What interests you?",
+    pricing: "Pricing varies by project scope. We offer competitive rates and free consultations. Would you like to get a free quote? You can fill out our contact form or chat with us on WhatsApp!",
+    contact: "You can reach us via:\n• WhatsApp: +62 813-9892-0798\n• Email: fainaya.service.art@gmail.com\n• Location: West Java, Indonesia\n\nOr fill out the contact form on our website!",
+    hello: "Hello! 👋 Welcome to Fainaya Service & Art. How can I help you today?",
+    hi: "Hi there! 👋 How can I assist you?",
+    thanks: "You're welcome! 😊 Feel free to ask if you have more questions.",
+    "thank you": "You're welcome! 😊 Feel free to ask if you have more questions.",
   },
   zh: {
-    'it services': "我们提供电脑和打印机维修、网络解决方案、系统开发以及持续的技术支持。所有服务由经验丰富的技术人员提供。您需要报价吗？",
-    'creative services': "我们的创意团队负责数字设计与品牌、视频编辑与制作、定制创意项目以及手工包、钱包和配饰。您对什么感兴趣？",
-    'pricing': "价格因项目范围而异。我们提供有竞争力的价格和免费咨询。您想获取免费报价吗？您可以填写我们的联系表单或在WhatsApp上与我们聊天！",
-    'contact': "您可以通过以下方式联系我们：\n• WhatsApp: +62 813-9892-0798\n• 邮箱: fainaya.service.art@gmail.com\n• 地址: 西爪哇，印度尼西亚\n\n或填写我们网站上的联系表单！",
-    'hello': "您好！👋 欢迎来到Fainaya Service & Art。今天我能帮您什么？",
-    'hi': "您好！👋 有什么可以帮您的？",
-    'thanks': "不客气！😊 如果有更多问题，随时提问。",
-    'thank you': "不客气！😊 如果有更多问题，随时提问。"
+    "it services": "我们提供电脑和打印机维修、网络解决方案、系统开发以及持续的技术支持。所有服务由经验丰富的技术人员提供。您需要报价吗？",
+    "creative services": "我们的创意团队负责数字设计与品牌、视频编辑与制作、定制创意项目以及手工包、钱包和配饰。您对什么感兴趣？",
+    pricing: "价格因项目范围而异。我们提供有竞争力的价格和免费咨询。您想获取免费报价吗？您可以填写我们的联系表单或在WhatsApp上与我们聊天！",
+    contact: "您可以通过以下方式联系我们：\n• WhatsApp: +62 813-9892-0798\n• 邮箱: fainaya.service.art@gmail.com\n• 地址: 西爪哇，印度尼西亚\n\n或填写我们网站上的联系表单！",
+    hello: "您好！👋 欢迎来到Fainaya Service & Art。今天我能帮您什么？",
+    hi: "您好！👋 有什么可以帮您的？",
+    thanks: "不客气！😊 如果有更多问题，随时提问。",
+    "thank you": "不客气！😊 如果有更多问题，随时提问。",
   },
   id: {
-    'it services': "Kami menawarkan perbaikan komputer & printer, solusi jaringan, pengembangan sistem, dan dukungan teknis berkelanjutan. Semua layanan ditangani oleh teknisi berpengalaman. Apakah Anda ingin penawaran?",
-    'creative services': "Tim kreatif kami menangani desain digital & branding, editing & produksi video, proyek kreatif kustom, serta tas, dompet & aksesoris buatan tangan. Apa yang menarik bagi Anda?",
-    'pricing': "Harga bervariasi berdasarkan cakupan proyek. Kami menawarkan tarif kompetitif dan konsultasi gratis. Apakah Anda ingin penawaran gratis? Isi formulir kontak atau chat kami di WhatsApp!",
-    'contact': "Anda bisa menghubungi kami melalui:\n• WhatsApp: +62 813-9892-0798\n• Email: fainaya.service.art@gmail.com\n• Lokasi: Jawa Barat, Indonesia\n\nAtau isi formulir kontak di website kami!",
-    'hello': "Halo! 👋 Selamat datang di Fainaya Service & Art. Ada yang bisa saya bantu hari ini?",
-    'hi': "Hai! 👋 Ada yang bisa saya bantu?",
-    'thanks': "Sama-sama! 😊 Jangan ragu untuk bertanya lagi jika ada yang perlu.",
-    'thank you': "Sama-sama! 😊 Jangan ragu untuk bertanya lagi jika ada yang perlu."
-  }
+    "it services": "Kami menawarkan perbaikan komputer & printer, solusi jaringan, pengembangan sistem, dan dukungan teknis berkelanjutan. Semua layanan ditangani oleh teknisi berpengalaman. Apakah Anda ingin penawaran?",
+    "creative services": "Tim kreatif kami menangani desain digital & branding, editing & produksi video, proyek kreatif kustom, serta tas, dompet & aksesoris buatan tangan. Apa yang menarik bagi Anda?",
+    pricing: "Harga bervariasi berdasarkan cakupan proyek. Kami menawarkan tarif kompetitif dan konsultasi gratis. Apakah Anda ingin penawaran gratis? Isi formulir kontak atau chat kami di WhatsApp!",
+    contact: "Anda bisa menghubungi kami melalui:\n• WhatsApp: +62 813-9892-0798\n• Email: fainaya.service.art@gmail.com\n• Lokasi: Jawa Barat, Indonesia\n\nAtau isi formulir kontak di website kami!",
+    hello: "Halo! 👋 Selamat datang di Fainaya Service & Art. Ada yang bisa saya bantu hari ini?",
+    hi: "Hai! 👋 Ada yang bisa saya bantu?",
+    thanks: "Sama-sama! 😊 Jangan ragu untuk bertanya lagi jika ada yang perlu.",
+    "thank you": "Sama-sama! 😊 Jangan ragu untuk bertanya lagi jika ada yang perlu.",
+  },
 };
 
 function toggleChat() {
-  const chatWindow = document.getElementById('chatWindow');
-  const chatIcon = document.getElementById('chatIcon');
-  const chatCloseIcon = document.getElementById('chatCloseIcon');
-  const isOpen = !chatWindow.classList.contains('hidden');
+  const chatWindow = document.getElementById("chatWindow");
+  const chatIcon = document.getElementById("chatIcon");
+  const chatCloseIcon = document.getElementById("chatCloseIcon");
+  const isOpen = !chatWindow.classList.contains("hidden");
 
-  chatWindow.classList.toggle('hidden', isOpen);
-  chatIcon.classList.toggle('hidden', !isOpen);
-  chatCloseIcon.classList.toggle('hidden', isOpen);
+  chatWindow.classList.toggle("hidden", isOpen);
+  chatIcon.classList.toggle("hidden", !isOpen);
+  chatCloseIcon.classList.toggle("hidden", isOpen);
 }
 
 function addBotMessage(text) {
-  const messages = document.getElementById('chatMessages');
-  const msgDiv = document.createElement('div');
-  msgDiv.className = 'chatbot-msg bot';
+  const messages = document.getElementById("chatMessages");
+  const msgDiv = document.createElement("div");
+  msgDiv.className = "chatbot-msg bot";
   msgDiv.innerHTML = `
     <div class="chatbot-avatar">
       <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"/></svg>
     </div>
-    <div class="chatbot-bubble"><p>${text.replace(/\n/g, '</p><p>')}</p></div>
+    <div class="chatbot-bubble"><p>${text.replaceAll("\n", "</p><p>")}</p></div>
   `;
   messages.appendChild(msgDiv);
   messages.scrollTop = messages.scrollHeight;
 }
 
 function addUserMessage(text) {
-  const messages = document.getElementById('chatMessages');
-  const msgDiv = document.createElement('div');
-  msgDiv.className = 'chatbot-msg user';
+  const messages = document.getElementById("chatMessages");
+  const msgDiv = document.createElement("div");
+  msgDiv.className = "chatbot-msg user";
   msgDiv.innerHTML = `
     <div class="chatbot-avatar">
       <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
@@ -517,10 +602,10 @@ function addUserMessage(text) {
 }
 
 function showTyping() {
-  const messages = document.getElementById('chatMessages');
-  const typing = document.createElement('div');
-  typing.className = 'chatbot-msg bot';
-  typing.id = 'chatTyping';
+  const messages = document.getElementById("chatMessages");
+  const typing = document.createElement("div");
+  typing.className = "chatbot-msg bot";
+  typing.id = "chatTyping";
   typing.innerHTML = `
     <div class="chatbot-avatar">
       <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"/></svg>
@@ -532,7 +617,7 @@ function showTyping() {
 }
 
 function removeTyping() {
-  const typing = document.getElementById('chatTyping');
+  const typing = document.getElementById("chatTyping");
   if (typing) typing.remove();
 }
 
@@ -545,25 +630,28 @@ function getBotResponse(input) {
     if (lower.includes(key)) return value;
   }
 
-  if (lang === 'zh') return "感谢您的留言！如需更多信息，请通过WhatsApp +62 813-9892-0798联系我们，或填写网站上的联系表单。";
-  if (lang === 'id') return "Terima kasih atas pesannya! Untuk informasi lebih lanjut, silakan hubungi kami via WhatsApp di +62 813-9892-0798 atau isi formulir kontak di website.";
+  if (lang === "zh") return "感谢您的留言！如需更多信息，请通过WhatsApp +62 813-9892-0798联系我们，或填写网站上的联系表单。";
+  if (lang === "id") return "Terima kasih atas pesannya! Untuk informasi lebih lanjut, silakan hubungi kami via WhatsApp di +62 813-9892-0798 atau isi formulir kontak di website.";
   return "Thank you for your message! For more information, please contact us via WhatsApp at +62 813-9892-0798 or fill out the contact form on our website.";
 }
 
 function sendChatMessage() {
-  const input = document.getElementById('chatInput');
+  const input = document.getElementById("chatInput");
   const text = input.value.trim();
   if (!text) return;
 
   addUserMessage(text);
-  input.value = '';
+  input.value = "";
 
   showTyping();
 
-  setTimeout(() => {
-    removeTyping();
-    addBotMessage(getBotResponse(text));
-  }, 800 + Math.random() * 600);
+  setTimeout(
+    () => {
+      removeTyping();
+      addBotMessage(getBotResponse(text));
+    },
+    800 + Math.random() * 600,
+  );
 }
 
 function sendQuickMessage(text) {
@@ -571,18 +659,21 @@ function sendQuickMessage(text) {
 
   showTyping();
 
-  setTimeout(() => {
-    removeTyping();
-    addBotMessage(getBotResponse(text));
-  }, 800 + Math.random() * 600);
+  setTimeout(
+    () => {
+      removeTyping();
+      addBotMessage(getBotResponse(text));
+    },
+    800 + Math.random() * 600,
+  );
 }
 
 function handleChatKeypress(e) {
-  if (e.key === 'Enter') sendChatMessage();
+  if (e.key === "Enter") sendChatMessage();
 }
 
 // Close button inside chat window
-document.getElementById('chatClose').addEventListener('click', toggleChat);
+document.getElementById("chatClose").addEventListener("click", toggleChat);
 
 /* ---------- Init ---------- */
 setLanguage(currentLang);

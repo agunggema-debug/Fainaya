@@ -390,7 +390,77 @@
   border-top: 1px solid #f1f5f9;
   flex-shrink: 0;
 }
+* ---------- Mobile Menu ---------- */ #mobileMenu.open {
+  transform: translateX(0);
+}
 
+#mobileOverlay.open {
+  opacity: 1;
+}
+
+#mobileOverlay.hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* Hamburger to X Animation */
+#mobileMenuBtn.is-active #menuLine1 {
+  transform: rotate(45deg) translate(5px, 5px);
+}
+
+#mobileMenuBtn.is-active #menuLine2 {
+  opacity: 0;
+}
+
+#mobileMenuBtn.is-active #menuLine3 {
+  transform: rotate(-45deg) translate(5px, -5px);
+}
+
+#mobileMenuBtn svg path {
+  transition: all 0.3s ease;
+  transform-origin: center;
+}
+
+/* Smooth fade-in for mobile nav links on open */
+#mobileMenu.open .mobile-nav-link {
+  animation: navLinkFadeIn 0.3s ease forwards;
+  opacity: 0;
+}
+
+#mobileMenu.open .mobile-nav-link:nth-child(1) {
+  animation-delay: 0.05s;
+}
+#mobileMenu.open .mobile-nav-link:nth-child(2) {
+  animation-delay: 0.1s;
+}
+#mobileMenu.open .mobile-nav-link:nth-child(3) {
+  animation-delay: 0.15s;
+}
+#mobileMenu.open .mobile-nav-link:nth-child(4) {
+  animation-delay: 0.2s;
+}
+#mobileMenu.open .mobile-nav-link:nth-child(5) {
+  animation-delay: 0.25s;
+}
+#mobileMenu.open .mobile-nav-link:nth-child(6) {
+  animation-delay: 0.3s;
+}
+
+@keyframes navLinkFadeIn {
+  from {
+    opacity: 0;
+    transform: translateX(-12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* Prevent body scroll when menu open */
+body.menu-open {
+  overflow: hidden;
+}
 /* Mobile */
 @media (max-width: 480px) {
   .chatbot-container {
