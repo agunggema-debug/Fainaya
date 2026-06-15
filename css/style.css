@@ -9,7 +9,15 @@
 
 /* ---------- Gradient Text ---------- */
 .gradient-text {
-  background: linear-gradient(135deg, #3b82f6, #f97316);
+  background: linear-gradient(135deg, #1d4ed8, #c2410c);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ---------- Accessible Gradient for Dark Backgrounds ---------- */
+.gradient-text-light {
+  background: linear-gradient(135deg, #60a5fa, #fb923c);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -76,7 +84,7 @@
   transform: scale(1.05);
 }
 .lang-btn.active {
-  background: linear-gradient(135deg, #3b82f6, #f97316);
+  background: linear-gradient(135deg, #1d4ed8, #c2410c);
   color: white;
 }
 
@@ -97,7 +105,7 @@
   width: 60px;
   height: 60px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #3b82f6, #f97316);
+  background: linear-gradient(135deg, #1d4ed8, #c2410c);
   border: none;
   cursor: pointer;
   display: flex;
@@ -119,7 +127,7 @@
   width: 100%;
   height: 100%;
   border-radius: 50%;
-  background: linear-gradient(135deg, #3b82f6, #f97316);
+  background: linear-gradient(135deg, #1d4ed8, #c2410c);
   animation: chatPulse 2s ease-in-out infinite;
   z-index: -1;
 }
@@ -230,7 +238,7 @@
   width: 28px;
   height: 28px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #3b82f6, #f97316);
+  background: linear-gradient(135deg, #1d4ed8, #c2410c);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -252,7 +260,7 @@
 }
 
 .chatbot-msg.user .chatbot-bubble {
-  background: linear-gradient(135deg, #3b82f6, #2563eb);
+  background: linear-gradient(135deg, #1d4ed8, #2563eb);
   color: #ffffff;
   border-bottom-right-radius: 4px;
 }
@@ -328,7 +336,7 @@
 }
 
 .chatbot-quick-btn:hover {
-  background: #3b82f6;
+  background: #1d4ed8; /* Darker blue to meet 4.5:1 ratio with white text */
   color: #ffffff;
   border-color: #3b82f6;
 }
@@ -363,7 +371,7 @@
   width: 40px;
   height: 40px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #3b82f6, #f97316);
+  background: linear-gradient(135deg, #1d4ed8, #c2410c);
   border: none;
   cursor: pointer;
   display: flex;
@@ -390,6 +398,28 @@
   border-top: 1px solid #f1f5f9;
   flex-shrink: 0;
 }
+
+.creator-link {
+  position: relative;
+}
+.creator-link::after {
+  content: "";
+  position: absolute;
+  width: 0;
+  height: 1px;
+  bottom: -2px;
+  left: 0;
+  background-color: #60a5fa; /* Light blue for visibility on dark footer */
+  transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.creator-link:hover::after {
+  width: 100%;
+}
+
+#progressPath {
+  transition: stroke-dashoffset 0.1s linear;
+}
+
 * ---------- Mobile Menu ---------- */ #mobileMenu.open {
   transform: translateX(0);
 }

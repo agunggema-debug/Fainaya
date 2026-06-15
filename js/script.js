@@ -43,7 +43,7 @@ const translations = {
     creative_2_desc: "Professional video editing, motion graphics, and promotional content.",
     creative_3_title: "Custom Creative Projects",
     creative_3_desc: "Tailored creative solutions from concept to final delivery.",
-    creative_4_title: "Handmade Bags, Wallets & Accessories",
+    creative_4_title: "Knitting Creations",
     creative_4_desc: "Handcrafted bags, wallets, and other unique accessories made with care and creativity.",
     about_badge: "About Us",
     about_title_1: "Your Trusted Local Partner for",
@@ -78,7 +78,7 @@ const translations = {
     opt_digital_design: "Digital Design & Branding",
     opt_video_editing: "Video Editing & Production",
     opt_creative_projects: "Custom Creative Projects",
-    opt_handmade: "Handmade Bags, Wallets & Accessories",
+    opt_handmade: "Knitting Creations",
     opt_other: "Other",
     whatsapp_title: "WhatsApp Us",
     whatsapp_desc: "Quick response • Chat now",
@@ -87,9 +87,7 @@ const translations = {
     location_value: "West Java, Indonesia",
     hours_title: "Business Hours",
     hours_weekday: "Monday – Friday",
-    hours_saturday: "Saturday",
-    hours_sunday: "Sunday",
-    hours_closed: "Closed",
+    hours_weekend: "Saturday – Sunday",
     footer_desc: "Your trusted local partner for IT solutions and creative services. Where technology meets creativity.",
     footer_quick_links: "Quick Links",
     footer_about: "About Us",
@@ -164,7 +162,7 @@ const translations = {
     creative_2_desc: "专业视频编辑、动态图形和推广内容。",
     creative_3_title: "定制创意项目",
     creative_3_desc: "从概念到最终交付的量身定制创意解决方案。",
-    creative_4_title: "手工包、钱包与配饰",
+    creative_4_title: "针织精品",
     creative_4_desc: "精心制作的手工包、钱包和其他独特配饰。",
     about_badge: "关于我们",
     about_title_1: "您值得信赖的本地合作伙伴",
@@ -197,7 +195,7 @@ const translations = {
     opt_digital_design: "数字设计与品牌",
     opt_video_editing: "视频编辑与制作",
     opt_creative_projects: "定制创意项目",
-    opt_handmade: "手工包、钱包与配饰",
+    opt_handmade: "针织精品",
     opt_other: "其他",
     whatsapp_title: "WhatsApp联系",
     whatsapp_desc: "快速回复 • 立即聊天",
@@ -206,9 +204,7 @@ const translations = {
     location_value: "西爪哇，印度尼西亚",
     hours_title: "营业时间",
     hours_weekday: "周一至周五",
-    hours_saturday: "周六",
-    hours_sunday: "周日",
-    hours_closed: "休息",
+    hours_weekend: "周六至周日",
     footer_desc: "您值得信赖的本地IT解决方案和创意服务合作伙伴。技术与创意的交汇之处。",
     footer_quick_links: "快速链接",
     footer_about: "关于我们",
@@ -283,7 +279,7 @@ const translations = {
     creative_2_desc: "Editing video profesional, motion graphics, dan konten promosi.",
     creative_3_title: "Proyek Kreatif Kustom",
     creative_3_desc: "Solusi kreatif yang disesuaikan dari konsep hingga pengiriman akhir.",
-    creative_4_title: "Tas, Dompet & Aksesoris Buatan Tangan",
+    creative_4_title: "Kreasi Rajutan",
     creative_4_desc: "Tas, dompet, dan aksesoris unik lainnya yang dibuat dengan penuh keahlian dan kreativitas.",
     about_badge: "Tentang Kami",
     about_title_1: "Mitra Lokal Terpercaya Anda untuk",
@@ -318,7 +314,7 @@ const translations = {
     opt_digital_design: "Desain Digital & Branding",
     opt_video_editing: "Editing & Produksi Video",
     opt_creative_projects: "Proyek Kreatif Kustom",
-    opt_handmade: "Tas, Dompet & Aksesoris Buatan Tangan",
+    opt_handmade: "Kreasi Rajutan",
     opt_other: "Lainnya",
     whatsapp_title: "Chat WhatsApp",
     whatsapp_desc: "Respons cepat • Chat sekarang",
@@ -327,9 +323,7 @@ const translations = {
     location_value: "Jawa Barat, Indonesia",
     hours_title: "Jam Kerja",
     hours_weekday: "Senin – Jumat",
-    hours_saturday: "Sabtu",
-    hours_sunday: "Minggu",
-    hours_closed: "Tutup",
+    hours_weekend: "Sabtu – Minggu",
     footer_desc: "Mitra lokal terpercaya Anda untuk solusi TI dan layanan kreatif. Di mana teknologi bertemu kreativitas.",
     footer_quick_links: "Tautan Cepat",
     footer_about: "Tentang Kami",
@@ -378,7 +372,7 @@ function setLanguage(lang) {
   // Update all data-i18n elements
   document.querySelectorAll("[data-i18n]").forEach((el) => {
     const key = el.dataset.i18n;
-    if (translations[lang] && translations[lang][key]) {
+    if (translations[lang]?.[key]) {
       el.textContent = translations[lang][key];
     }
   });
@@ -386,10 +380,10 @@ function setLanguage(lang) {
   // Update placeholders
   const nameInput = document.getElementById("name");
   const messageInput = document.getElementById("message");
-  if (nameInput && translations[lang].placeholder_name) {
+  if (nameInput && translations[lang]?.placeholder_name) {
     nameInput.placeholder = translations[lang].placeholder_name;
   }
-  if (messageInput && translations[lang].placeholder_message) {
+  if (messageInput && translations[lang]?.placeholder_message) {
     messageInput.placeholder = translations[lang].placeholder_message;
   }
 
@@ -458,7 +452,7 @@ function openMobileMenu() {
     menu.style.transform = "translateX(0)";
     overlay.classList.add("open");
   }, 10);
-  
+
   btn.classList.add("is-active");
   btn.setAttribute("aria-expanded", "true");
   document.body.classList.add("menu-open");
@@ -517,10 +511,22 @@ document.querySelectorAll('a[href^="#"]').forEach((anchor) => {
 /* ---------- Contact Form ---------- */
 document.getElementById("contactForm").addEventListener("submit", function (e) {
   e.preventDefault();
-  const { name, email, phone, service, message } = Object.fromEntries(new FormData(this));
+  const formData = new FormData(this);
 
-  let msg = `Hello Fainaya! I'm ${name}.%0AEmail: ${email}%0A`;
-  if (phone) msg += `Phone: ${phone}%0A`;
+  // Helper to safely extract string values and avoid [object File] stringification
+  const getField = (key, fallback = "") => {
+    const val = formData.get(key);
+    return typeof val === "string" ? val : fallback;
+  };
+
+  const userName = getField("name", "a customer");
+  const email = getField("email");
+  const phone = getField("phone");
+  const service = getField("service");
+  const message = getField("message");
+
+  let msg = `Hello Fainaya! I'm ${userName}.%0AEmail: ${email}%0A`;
+  if (phone.trim()) msg += `Phone: ${phone}%0A`;
   msg += `Service: ${service}%0AMessage: ${message}`;
 
   window.open(`https://wa.me/6281398920798?text=${msg}`, "_blank");
@@ -674,6 +680,37 @@ function handleChatKeypress(e) {
 
 // Close button inside chat window
 document.getElementById("chatClose").addEventListener("click", toggleChat);
+
+/* ---------- Scroll Up Button ---------- */
+const scrollUpBtn = document.getElementById("scrollUp");
+const progressPath = document.getElementById("progressPath");
+const pathLength = 144.5; // Keliling lingkaran (2 * PI * r)
+
+if (scrollUpBtn) {
+  window.addEventListener("scroll", () => {
+    const currentScroll = window.scrollY || document.documentElement.scrollTop;
+    const scrollTotal = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+
+    if (currentScroll > 300) {
+      scrollUpBtn.classList.remove("translate-y-20", "opacity-0");
+      scrollUpBtn.classList.add("translate-y-0", "opacity-100");
+
+      // Update progres melingkar
+      const scrollProgress = pathLength - (currentScroll * pathLength) / (scrollTotal || 1);
+      if (progressPath) progressPath.style.strokeDashoffset = scrollProgress;
+    } else {
+      scrollUpBtn.classList.add("translate-y-20", "opacity-0");
+      scrollUpBtn.classList.remove("translate-y-0", "opacity-100");
+    }
+  });
+
+  scrollUpBtn.addEventListener("click", () => {
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth",
+    });
+  });
+}
 
 /* ---------- Init ---------- */
 setLanguage(currentLang);
