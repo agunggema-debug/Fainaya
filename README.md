@@ -1,4 +1,4 @@
-# [Nama Proyek] - AI-Assisted Development Policy
+# Faianaya Services&Art - AI-Assisted Development Policy
 
 Proyek ini menggunakan AI *coding assistant* (seperti GitHub Copilot/Cursor/LLM lainnya) sebagai alat bantu produktivitas. Penggunaan alat ini dijalankan sesuai dengan standar internal **Fainaya Service and Art** yang selaras dengan prinsip **ISO 27001 (Information Security Management System)**.
 
