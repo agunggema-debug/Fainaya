@@ -1,26 +1,73 @@
-# Faianaya Services&Art - AI-Assisted Development Policy
+# React + TypeScript + Vite
 
-Proyek ini menggunakan AI *coding assistant* (seperti GitHub Copilot/Cursor/LLM lainnya) sebagai alat bantu produktivitas. Penggunaan alat ini dijalankan sesuai dengan standar internal **Fainaya Service and Art** yang selaras dengan prinsip **ISO 27001 (Information Security Management System)**.
+This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
 
-## 🛡️ Kebijakan Penggunaan AI (ISMS Compliance)
-Untuk menjaga keamanan data dan integritas kode:
-1. **Zero Data Training:** AI assistant diatur dalam mode *Enterprise* yang menjamin input kode tidak digunakan untuk melatih model publik.
-2. **Data Sanitization:** Dilarang memasukkan PII (Personally Identifiable Information), API Keys, Secret Tokens, atau rahasia bisnis ke dalam prompt AI.
-3. **Manual Verification:** Semua kode yang dihasilkan AI wajib melalui proses *Human-in-the-loop* (review manual oleh pengembang).
-4. **Security Scanning:** Kode hasil AI wajib melewati pemindaian *static analysis* (SAST) sebelum masuk ke repositori utama.
+Currently, two official plugins are available:
 
-## 📋 Checklist Sebelum Menggunakan AI
-- [ ] **Data Masking:** Apakah variabel yang berisi data sensitif sudah di-*masking*?
-- [ ] **License Check:** Apakah lisensi AI assistant yang digunakan adalah akun resmi perusahaan/bisnis?
-- [ ] **No Secrets:** Apakah prompt mengandung *hardcoded password*? (Jika ya, hapus segera).
+- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
+- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
 
-## 🚀 Alur Kerja Keamanan (Secure SDLC)
-```mermaid
-graph LR
-    A[Input Prompt] --> B{Data Sensitif?}
-    B -->|Ya| C[Masking Data]
-    B -->|Tidak| D[Generate Code]
-    C --> D
-    D --> E[Review & Audit Manual]
-    E --> F[Security Scanning]
-    F --> G[Commit & Deploy]
+## React Compiler
+
+The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+
+## Expanding the ESLint configuration
+
+If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+
+```js
+export default defineConfig([
+  globalIgnores(['dist']),
+  {
+    files: ['**/*.{ts,tsx}'],
+    extends: [
+      // Other configs...
+
+      // Remove tseslint.configs.recommended and replace with this
+      tseslint.configs.recommendedTypeChecked,
+      // Alternatively, use this for stricter rules
+      tseslint.configs.strictTypeChecked,
+      // Optionally, add this for stylistic rules
+      tseslint.configs.stylisticTypeChecked,
+
+      // Other configs...
+    ],
+    languageOptions: {
+      parserOptions: {
+        project: ['./tsconfig.node.json', './tsconfig.app.json'],
+        tsconfigRootDir: import.meta.dirname,
+      },
+      // other options...
+    },
+  },
+])
+```
+
+You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+
+```js
+// eslint.config.js
+import reactX from 'eslint-plugin-react-x'
+import reactDom from 'eslint-plugin-react-dom'
+
+export default defineConfig([
+  globalIgnores(['dist']),
+  {
+    files: ['**/*.{ts,tsx}'],
+    extends: [
+      // Other configs...
+      // Enable lint rules for React
+      reactX.configs['recommended-typescript'],
+      // Enable lint rules for React DOM
+      reactDom.configs.recommended,
+    ],
+    languageOptions: {
+      parserOptions: {
+        project: ['./tsconfig.node.json', './tsconfig.app.json'],
+        tsconfigRootDir: import.meta.dirname,
+      },
+      // other options...
+    },
+  },
+])
+```
