@@ -22,7 +22,8 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
-
+implemetasi.md
+dashboard.md
 # Environment variables (API keys, secrets)
 .env
 .env.local

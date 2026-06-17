@@ -3,6 +3,8 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../hooks/useAuth";
 import { fetchSupabaseTotalStats, fetchSupabaseDailyStats, getLocalTotalStats, getLocalDailyStats } from "../../data/visitorTracker";
 import type { DailyStats, PageStats } from "../../data/visitorTracker";
+import Sidebar from "../../components/admin/Sidebar";
+import TopNav from "../../components/admin/TopNav";
 
 type DashboardData = {
   totalVisitors: number;
@@ -13,31 +15,36 @@ type DashboardData = {
   dailyStats: DailyStats[];
 };
 
-/* ───── animated bar chart ───── */
+/* ───── Bar Chart (Tailwind UI inspired) ───── */
 function BarChart({ data, color, gradientFrom, gradientTo }: { data: { label: string; value: number }[]; color: string; gradientFrom?: string; gradientTo?: string }) {
   const max = Math.max(...data.map((d) => d.value), 1);
 
   return (
-    <div className="flex items-end gap-1 sm:gap-2 h-40 pt-3">
+    <div className="flex items-end gap-1.5 sm:gap-2 h-44 pt-4">
       {data.map((item, i) => {
-        const pct = Math.max((item.value / max) * 100, 4);
+        const pct = Math.max((item.value / max) * 100, 5);
         return (
-          <div key={i} className="flex-1 flex flex-col items-center gap-1.5 group">
-            {/* value tooltip */}
-            <span className="text-[10px] font-bold text-slate-600 opacity-0 group-hover:opacity-100 transition-opacity duration-200 bg-white shadow-md rounded-md px-1.5 py-0.5 border border-slate-100">{item.value}</span>
+          <div key={i} className="flex-1 flex flex-col items-center gap-1.5 group relative">
+            {/* tooltip */}
+            <div className="absolute -top-7 left-1/2 -translate-x-1/2 bg-white text-[10px] font-semibold text-gray-600 px-2 py-1 rounded-md shadow-lg border border-gray-100 opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-10">
+              {item.value}
+            </div>
             {/* bar */}
-            <div className="w-full relative rounded-t-lg overflow-hidden" style={{ height: `${pct}%` }}>
+            <div
+              className="w-full rounded-full relative cursor-pointer"
+              style={{ height: `${pct}%`, minHeight: "6px" }}
+            >
               <div
-                className="absolute inset-0 rounded-t-lg transition-all duration-700 ease-out"
+                className="absolute inset-0 rounded-full transition-all duration-500 ease-out"
                 style={{
-                  background: gradientFrom && gradientTo ? `linear-gradient(to top, ${gradientFrom}, ${gradientTo})` : color,
+                  background: gradientFrom && gradientTo
+                    ? `linear-gradient(to top, ${gradientFrom}, ${gradientTo})`
+                    : color,
                 }}
               />
-              {/* shine overlay */}
-              <div className="absolute inset-0 bg-linear-to-r from-white/20 to-transparent rounded-t-lg" />
             </div>
             {/* label */}
-            <span className="text-[8px] sm:text-[9px] text-slate-400 truncate w-full text-center leading-none">{item.label}</span>
+            <span className="text-[9px] sm:text-[10px] text-gray-400 truncate w-full text-center leading-none">{item.label}</span>
           </div>
         );
       })}
@@ -45,26 +52,44 @@ function BarChart({ data, color, gradientFrom, gradientTo }: { data: { label: st
   );
 }
 
-/* ───── mini sparkline for stat cards ───── */
-function MiniSparkline({ values, color }: { values: number[]; color: string }) {
-  if (values.length < 2) return null;
-  const max = Math.max(...values, 1);
-  const min = Math.min(...values, 0);
-  const range = max - min || 1;
-  const w = 64;
-  const h = 24;
-  const points = values
-    .map((v, i) => {
-      const x = (i / (values.length - 1)) * w;
-      const y = h - ((v - min) / range) * h;
-      return `${x},${y}`;
-    })
-    .join(" ");
-
+/* ───── Stat Card ───── */
+function StatCard({
+  label,
+  value,
+  icon,
+  trend,
+  trendUp,
+}: {
+  label: string;
+  value: number;
+  icon: React.ReactNode;
+  trend?: string;
+  trendUp?: boolean;
+}) {
   return (
-    <svg width={w} height={h} viewBox={`0 0 ${w} ${h}`} className="opacity-60">
-      <polyline fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" points={points} />
-    </svg>
+    <div className="relative overflow-hidden rounded-xl bg-white p-6 shadow-sm ring-1 ring-gray-200/60 hover:shadow-md transition-shadow duration-200">
+      <div className="flex items-center justify-between">
+        <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-gray-50 ring-1 ring-gray-200/50">
+          {icon}
+        </div>
+        {trend && (
+          <span
+            className={`inline-flex items-center gap-0.5 rounded-full px-2 py-0.5 text-xs font-medium ${
+              trendUp ? "bg-green-50 text-green-700 ring-1 ring-green-200/50" : "bg-red-50 text-red-700 ring-1 ring-red-200/50"
+            }`}
+          >
+            <svg className="h-3 w-3" fill="none" viewBox="0 0 24 24" strokeWidth="2.5" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" d={trendUp ? "M2.25 18L9 11.25l4.306 4.307a11.95 11.95 0 015.814-5.519l2.74-1.22m0 0l-5.94-2.28m5.94 2.28l-2.28 5.941" : "M2.25 6L9 12.75l4.286-4.286a11.948 11.948 0 014.306 6.43l.776 2.898m0 0l3.182-5.511m-3.182 5.51l-5.511-3.181"} />
+            </svg>
+            {trend}
+          </span>
+        )}
+      </div>
+      <div className="mt-4">
+        <p className="text-2xl font-semibold text-gray-900">{value.toLocaleString()}</p>
+        <p className="mt-1 text-sm text-gray-500">{label}</p>
+      </div>
+    </div>
   );
 }
 
@@ -76,6 +101,8 @@ export default function Dashboard() {
   const [dailyStats, setDailyStats] = useState<DailyStats[]>([]);
   const [timeRange, setTimeRange] = useState<"7d" | "14d" | "30d">("14d");
   const [dataLoading, setDataLoading] = useState(true);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [activeTab, setActiveTab] = useState<"visitors" | "pageviews">("visitors");
 
   useEffect(() => {
     async function loadData() {
@@ -100,24 +127,6 @@ export default function Dashboard() {
     loadData();
   }, []);
 
-  /* ── loading ── */
-  if (loading || dataLoading) {
-    return (
-      <div className="min-h-screen bg-linear-to-br from-slate-50 via-white to-blue-50 flex flex-col items-center justify-center gap-4">
-        <div className="relative">
-          <div className="w-12 h-12 rounded-full border-4 border-blue-100 border-t-blue-500 animate-spin" />
-        </div>
-        <div className="animate-pulse text-slate-400 text-sm font-medium tracking-wide">Loading dashboard…</div>
-      </div>
-    );
-  }
-
-  if (!user) {
-    navigate("/?login=required");
-    return null;
-  }
-
-  /* ── handlers ── */
   const handleTimeChange = async (range: "7d" | "14d" | "30d") => {
     setTimeRange(range);
     const days = range === "7d" ? 7 : range === "14d" ? 14 : 30;
@@ -135,316 +144,322 @@ export default function Dashboard() {
     }
   };
 
+  if (loading || dataLoading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center gap-4">
+        <div className="h-8 w-8 animate-spin rounded-full border-2 border-gray-300 border-t-gray-600" />
+        <p className="text-sm text-gray-500 font-medium">Loading dashboard...</p>
+      </div>
+    );
+  }
+
+  if (!user) {
+    navigate("/?login=required");
+    return null;
+  }
+
   const doLogout = () => {
     logout();
     navigate("/");
   };
 
-  /* ── stat cards config ── */
-  const statsCards = [
-    {
-      label: "Total Visitors",
-      value: data.totalVisitors,
-      icon: "M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z",
-      gradient: "from-blue-500 to-blue-600",
-      bg: "bg-gradient-to-br from-blue-50 to-blue-100/60",
-      ring: "ring-blue-200/60",
-      sparkColor: "#3b82f6",
-      sparkValues: dailyStats.map((d) => d.visitors),
-    },
-    {
-      label: "Total Pageviews",
-      value: data.totalPageviews,
-      icon: "M15 12a3 3 0 11-6 0 3 3 0 016 0z M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z",
-      gradient: "from-orange-400 to-rose-500",
-      bg: "bg-gradient-to-br from-orange-50 to-rose-100/60",
-      ring: "ring-orange-200/60",
-      sparkColor: "#f97316",
-      sparkValues: dailyStats.map((d) => d.pageviews),
-    },
-    {
-      label: "Avg / Day",
-      value: data.avgVisitorsPerDay,
-      icon: "M13 7h8m0 0v8m0-8l-8 8-4-4-6 6",
-      gradient: "from-emerald-400 to-teal-500",
-      bg: "bg-gradient-to-br from-emerald-50 to-teal-100/60",
-      ring: "ring-emerald-200/60",
-      sparkColor: "#10b981",
-      sparkValues: dailyStats.map((d) => d.visitors),
-    },
-    {
-      label: "Active Days",
-      value: data.totalDays,
-      icon: "M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z",
-      gradient: "from-violet-400 to-purple-600",
-      bg: "bg-gradient-to-br from-violet-50 to-purple-100/60",
-      ring: "ring-violet-200/60",
-      sparkColor: "#8b5cf6",
-      sparkValues: dailyStats.map((_, i) => i + 1),
-    },
-  ];
+  const handleNavigate = (path: string) => {
+    navigate(path);
+  };
 
-  /* ── chart data ── */
+  const handleSearch = (query: string) => {
+    console.log("Search:", query);
+  };
+
+  /* ── Chart data ── */
   const chartData = dailyStats.map((d) => ({
     label: new Date(d.date + "T00:00:00").toLocaleDateString("en", { month: "short", day: "numeric" }),
-    value: d.visitors,
+    value: activeTab === "visitors" ? d.visitors : d.pageviews,
   }));
 
-  const pageviewChartData = dailyStats.map((d) => ({
-    label: new Date(d.date + "T00:00:00").toLocaleDateString("en", { month: "short", day: "numeric" }),
-    value: d.pageviews,
-  }));
+  const totalVisitorsTrend = dailyStats.length >= 7
+    ? ((dailyStats.slice(-7).reduce((a, b) => a + b.visitors, 0) / 7).toFixed(1))
+    : null;
 
   const pageLabels: Record<string, string> = {
-    "/": "Home",
-    "/#home": "Home",
+    "/": "Homepage",
+    "/#home": "Homepage",
     "/#services": "Services",
     "/#about": "About",
     "/#contact": "Contact",
   };
 
   return (
-    <div className="min-h-screen bg-linear-to-br from-slate-50 via-white to-blue-50/30">
-      {/* ── header ── */}
-      <header className="bg-white/80 backdrop-blur-xl border-b border-slate-200/60 sticky top-0 z-40 shadow-sm shadow-slate-200/40">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
-            <a href="/" className="flex items-center gap-3 group">
-              <div className="relative">
-                <img src="/img/logo.png" alt="Fainaya" className="h-8 w-auto rounded-lg transition-transform group-hover:scale-105" />
-                <div className="absolute -inset-1 bg-blue-500/10 rounded-xl blur opacity-0 group-hover:opacity-100 transition-opacity" />
-              </div>
-              <div className="flex items-center gap-2">
-                <span className="text-lg font-bold bg-linear-to-r from-slate-900 to-slate-600 bg-clip-text text-transparent">Admin Dashboard</span>
-                <span className="hidden sm:inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-linear-to-r from-blue-500 to-indigo-500 text-white shadow-sm">LIVE</span>
-              </div>
-            </a>
+    <div className="min-h-screen bg-gray-50 flex">
+      {/* Sidebar */}
+      <Sidebar
+        activePath="/admin/dashboard"
+        onNavigate={handleNavigate}
+        collapsed={sidebarCollapsed}
+        onToggle={() => setSidebarCollapsed(!sidebarCollapsed)}
+      />
 
-            <div className="flex items-center gap-3">
-              <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-50 border border-slate-100">
-                <div className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-                <span className="text-xs text-slate-600 font-medium truncate max-w-45">{user.email}</span>
-              </div>
-              <a href="/" className="text-xs font-medium text-slate-500 px-3 py-1.5 rounded-full border border-slate-200 hover:bg-slate-50 hover:border-slate-300 transition-all duration-200">
-                ← Back to Site
-              </a>
-              <button
-                onClick={doLogout}
-                className="text-xs font-medium text-slate-500 px-3 py-1.5 rounded-full border border-slate-200 hover:bg-red-50 hover:text-red-600 hover:border-red-200 transition-all duration-200 flex items-center gap-1.5"
-              >
-                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-                </svg>
-                Logout
-              </button>
-            </div>
-          </div>
-        </div>
-      </header>
+      {/* Main Area */}
+      <div className="flex-1 flex flex-col min-w-0">
+        <TopNav
+          userEmail={user.email ?? ""}
+          onSearch={handleSearch}
+          onLogout={doLogout}
+          onNavigate={handleNavigate}
+        />
 
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* ── stats cards ── */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-5 mb-8">
-          {statsCards.map((card, idx) => (
-            <div
-              key={card.label}
-              className={`${card.bg} rounded-2xl p-5 border border-white/60 shadow-sm hover:shadow-md hover:shadow-slate-200/50 transition-all duration-300 hover:-translate-y-0.5 ring-1 ${card.ring} group`}
-              style={{ animationDelay: `${idx * 80}ms` }}
-            >
-              <div className="flex items-center justify-between mb-4">
-                <div className={`w-11 h-11 rounded-xl bg-linear-to-br ${card.gradient} flex items-center justify-center shadow-lg shadow-slate-200/50 group-hover:scale-105 transition-transform`}>
-                  <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.8" d={card.icon} />
-                  </svg>
+        <main className="flex-1 overflow-y-auto">
+          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8">
+
+            {/* Page Header */}
+            <div className="sm:flex sm:items-center sm:justify-between mb-8">
+              <div>
+                <h1 className="text-xl font-semibold text-gray-900">Dashboard</h1>
+                <p className="mt-1 text-sm text-gray-500">Website analytics and visitor insights.</p>
+              </div>
+              <div className="mt-4 sm:mt-0 flex items-center gap-3">
+                <div className="flex rounded-lg bg-gray-100 p-0.5 ring-1 ring-gray-200/50">
+                  {(["7d", "14d", "30d"] as const).map((r) => (
+                    <button
+                      key={r}
+                      onClick={() => handleTimeChange(r)}
+                      className={`px-3 py-1.5 text-sm font-medium rounded-md transition-all ${
+                        timeRange === r
+                          ? "bg-white text-gray-900 shadow-sm"
+                          : "text-gray-500 hover:text-gray-700"
+                      }`}
+                    >
+                      {r}
+                    </button>
+                  ))}
                 </div>
-                <MiniSparkline values={card.sparkValues} color={card.sparkColor} />
+                <button className="inline-flex items-center gap-2 rounded-lg bg-gray-900 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-gray-800 transition-colors">
+                  <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" />
+                  </svg>
+                  Export
+                </button>
               </div>
-              <div className="text-2xl lg:text-3xl font-extrabold text-slate-900 tracking-tight mb-0.5">{card.value.toLocaleString()}</div>
-              <div className="text-xs font-medium text-slate-500">{card.label}</div>
             </div>
-          ))}
-        </div>
 
-        {/* ── charts row ── */}
-        <div className="grid lg:grid-cols-2 gap-5 mb-8">
-          {/* Daily Visitors */}
-          <div className="bg-white rounded-2xl p-6 border border-slate-100/80 shadow-sm hover:shadow-md transition-shadow duration-300">
-            <div className="flex items-center justify-between mb-5">
-              <div>
-                <h3 className="font-bold text-slate-900 text-sm">Daily Visitors</h3>
-                <p className="text-[11px] text-slate-400 mt-0.5">Unique visitor trend</p>
-              </div>
-              <div className="flex bg-slate-100/80 rounded-lg p-0.5">
-                {(["7d", "14d", "30d"] as const).map((r) => (
-                  <button
-                    key={r}
-                    onClick={() => handleTimeChange(r)}
-                    className={`text-[11px] font-semibold px-3 py-1 rounded-md transition-all duration-200 ${timeRange === r ? "bg-white text-blue-600 shadow-sm" : "text-slate-500 hover:text-slate-700"}`}
-                  >
-                    {r}
-                  </button>
-                ))}
-              </div>
+            {/* Stats Grid */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-8">
+              <StatCard
+                label="Total Visitors"
+                value={data.totalVisitors}
+                trend={totalVisitorsTrend ? `+${totalVisitorsTrend}/day` : undefined}
+                trendUp={true}
+                icon={
+                  <svg className="h-6 w-6 text-gray-600" fill="none" viewBox="0 0 24 24" strokeWidth="1.8" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z" />
+                  </svg>
+                }
+              />
+              <StatCard
+                label="Total Pageviews"
+                value={data.totalPageviews}
+                trend="+12.3%"
+                trendUp={true}
+                icon={
+                  <svg className="h-6 w-6 text-gray-600" fill="none" viewBox="0 0 24 24" strokeWidth="1.8" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                  </svg>
+                }
+              />
+              <StatCard
+                label="Avg / Day"
+                value={data.avgVisitorsPerDay}
+                icon={
+                  <svg className="h-6 w-6 text-gray-600" fill="none" viewBox="0 0 24 24" strokeWidth="1.8" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z" />
+                  </svg>
+                }
+              />
+              <StatCard
+                label="Active Days"
+                value={data.totalDays}
+                icon={
+                  <svg className="h-6 w-6 text-gray-600" fill="none" viewBox="0 0 24 24" strokeWidth="1.8" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5" />
+                  </svg>
+                }
+              />
             </div>
-            {chartData.length > 0 ? (
-              <BarChart data={chartData} color="#3b82f6" gradientFrom="#3b82f6" gradientTo="#93c5fd" />
-            ) : (
-              <div className="h-40 flex flex-col items-center justify-center text-slate-300">
-                <svg className="w-10 h-10 mb-2 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="1.5"
-                    d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
+
+            {/* Chart Section */}
+            <div className="rounded-xl bg-white p-6 shadow-sm ring-1 ring-gray-200/60 mb-8">
+              <div className="sm:flex sm:items-center sm:justify-between mb-6">
+                <div>
+                  <h2 className="text-base font-semibold text-gray-900">Overview</h2>
+                  <p className="mt-0.5 text-sm text-gray-500">Daily visitor and pageview trends</p>
+                </div>
+                <div className="mt-4 sm:mt-0 flex items-center gap-2">
+                  <div className="flex rounded-lg bg-gray-100 p-0.5">
+                    <button
+                      onClick={() => setActiveTab("visitors")}
+                      className={`px-3 py-1.5 text-sm font-medium rounded-md transition-all ${
+                        activeTab === "visitors" ? "bg-white text-gray-900 shadow-sm" : "text-gray-500 hover:text-gray-700"
+                      }`}
+                    >
+                      Visitors
+                    </button>
+                    <button
+                      onClick={() => setActiveTab("pageviews")}
+                      className={`px-3 py-1.5 text-sm font-medium rounded-md transition-all ${
+                        activeTab === "pageviews" ? "bg-white text-gray-900 shadow-sm" : "text-gray-500 hover:text-gray-700"
+                      }`}
+                    >
+                      Pageviews
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              {chartData.length > 0 ? (
+                <div>
+                  <div className="flex items-baseline gap-2 mb-2">
+                    <span className="text-3xl font-semibold text-gray-900">
+                      {chartData.reduce((a, b) => a + b.value, 0).toLocaleString()}
+                    </span>
+                    <span className="text-sm text-gray-500">total {activeTab === "visitors" ? "visitors" : "pageviews"}</span>
+                  </div>
+                  <BarChart
+                    data={chartData}
+                    color={activeTab === "visitors" ? "#6366f1" : "#f97316"}
+                    gradientFrom={activeTab === "visitors" ? "#6366f1" : "#f97316"}
+                    gradientTo={activeTab === "visitors" ? "#a5b4fc" : "#fdba74"}
                   />
-                </svg>
-                <span className="text-xs">No visitor data yet</span>
-              </div>
-            )}
-          </div>
-
-          {/* Daily Pageviews */}
-          <div className="bg-white rounded-2xl p-6 border border-slate-100/80 shadow-sm hover:shadow-md transition-shadow duration-300">
-            <div className="flex items-center justify-between mb-5">
-              <div>
-                <h3 className="font-bold text-slate-900 text-sm">Daily Pageviews</h3>
-                <p className="text-[11px] text-slate-400 mt-0.5">Total page impressions</p>
-              </div>
-              <div className="w-2 h-2 rounded-full bg-linear-to-br from-orange-400 to-rose-400" />
+                </div>
+              ) : (
+                <div className="flex flex-col items-center justify-center py-16 text-gray-300">
+                  <svg className="h-12 w-12 mb-3" fill="none" viewBox="0 0 24 24" strokeWidth="1" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z" />
+                  </svg>
+                  <p className="text-sm font-medium">No data yet</p>
+                  <p className="text-xs mt-1">Start browsing to see visitor trends</p>
+                </div>
+              )}
             </div>
-            {pageviewChartData.length > 0 ? (
-              <BarChart data={pageviewChartData} color="#f97316" gradientFrom="#f97316" gradientTo="#fdba74" />
-            ) : (
-              <div className="h-40 flex flex-col items-center justify-center text-slate-300">
-                <svg className="w-10 h-10 mb-2 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                </svg>
-                <span className="text-xs">No pageview data yet</span>
-              </div>
-            )}
-          </div>
-        </div>
 
-        {/* ── bottom row ── */}
-        <div className="grid lg:grid-cols-3 gap-5">
-          {/* Top Pages */}
-          <div className="bg-white rounded-2xl p-6 border border-slate-100/80 shadow-sm hover:shadow-md transition-shadow duration-300">
-            <div className="flex items-center gap-2 mb-5">
-              <div className="w-8 h-8 rounded-lg bg-linear-to-br from-amber-400 to-orange-500 flex items-center justify-center shadow-sm">
-                <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"
-                  />
-                </svg>
-              </div>
-              <div>
-                <h3 className="font-bold text-slate-900 text-sm">Top Pages</h3>
-                <p className="text-[11px] text-slate-400">Most visited pages</p>
-              </div>
-            </div>
-            {data.topPages.length > 0 ? (
-              <div className="space-y-3.5">
-                {data.topPages.map((page, idx) => {
-                  const maxCount = data.topPages[0].count;
-                  const percentage = Math.round((page.count / maxCount) * 100);
-                  const colors = ["from-blue-500 to-indigo-500", "from-orange-400 to-rose-400", "from-emerald-400 to-teal-400", "from-violet-400 to-purple-500", "from-pink-400 to-rose-500"];
-                  return (
-                    <div key={page.page_path} className="group">
-                      <div className="flex items-center justify-between text-sm mb-1.5">
-                        <div className="flex items-center gap-2 min-w-0">
-                          <span className="text-[10px] font-bold text-slate-300 w-4">{idx + 1}</span>
-                          <span className="font-medium text-slate-700 truncate text-xs">{pageLabels[page.page_path] || page.page_path || "Home"}</span>
-                        </div>
-                        <span className="text-xs font-bold text-slate-900 bg-slate-100 px-2 py-0.5 rounded-full ml-2 shrink-0">{page.count}</span>
-                      </div>
-                      <div className="w-full bg-slate-100 rounded-full h-1.5 overflow-hidden">
-                        <div className={`h-full rounded-full bg-linear-to-r ${colors[idx % colors.length]} transition-all duration-700 ease-out`} style={{ width: `${percentage}%` }} />
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            ) : (
-              <div className="text-center py-8">
-                <svg className="w-8 h-8 mx-auto text-slate-200 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                </svg>
-                <p className="text-xs text-slate-400">No page data yet</p>
-              </div>
-            )}
-          </div>
-
-          {/* Daily Breakdown Table */}
-          <div className="bg-white rounded-2xl p-6 border border-slate-100/80 shadow-sm hover:shadow-md transition-shadow duration-300 lg:col-span-2">
-            <div className="flex items-center gap-2 mb-5">
-              <div className="w-8 h-8 rounded-lg bg-linear-to-br from-cyan-400 to-blue-500 flex items-center justify-center shadow-sm">
-                <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 10h16M4 14h16M4 18h16" />
-                </svg>
-              </div>
-              <div>
-                <h3 className="font-bold text-slate-900 text-sm">Daily Breakdown</h3>
-                <p className="text-[11px] text-slate-400">Detailed daily statistics</p>
-              </div>
-            </div>
-            {dailyStats.length > 0 ? (
-              <div className="overflow-x-auto -mx-6 px-6">
-                <table className="w-full text-sm">
-                  <thead>
-                    <tr className="text-left text-slate-400 border-b border-slate-100">
-                      <th className="pb-2.5 font-semibold text-[11px] uppercase tracking-wider">Date</th>
-                      <th className="pb-2.5 font-semibold text-[11px] uppercase tracking-wider text-right">Visitors</th>
-                      <th className="pb-2.5 font-semibold text-[11px] uppercase tracking-wider text-right">Pageviews</th>
-                      <th className="pb-2.5 font-semibold text-[11px] uppercase tracking-wider text-right hidden sm:table-cell">Ratio</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {[...dailyStats].reverse().map((day, idx) => (
-                      <tr key={day.date} className={`border-b border-slate-50/80 hover:bg-slate-50/50 transition-colors ${idx === 0 ? "bg-blue-50/30" : ""}`}>
-                        <td className="py-2.5 text-slate-700 font-medium text-xs">
-                          <div className="flex items-center gap-2">
-                            {idx === 0 && <span className="w-1.5 h-1.5 rounded-full bg-blue-400 animate-pulse" />}
-                            {new Date(day.date + "T00:00:00").toLocaleDateString("en", { weekday: "short", month: "short", day: "numeric" })}
+            {/* Bottom Grid: Top Pages + Recent Activity */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+              {/* Top Pages */}
+              <div className="lg:col-span-1">
+                <div className="rounded-xl bg-white p-6 shadow-sm ring-1 ring-gray-200/60">
+                  <div className="flex items-center justify-between mb-5">
+                    <h2 className="text-base font-semibold text-gray-900">Top Pages</h2>
+                    <span className="rounded-full bg-gray-100 px-2.5 py-0.5 text-xs font-medium text-gray-600">
+                      {data.topPages.length} pages
+                    </span>
+                  </div>
+                  {data.topPages.length > 0 ? (
+                    <div className="space-y-4">
+                      {data.topPages.slice(0, 5).map((page, idx) => {
+                        const maxCount = data.topPages[0].count;
+                        const percentage = Math.round((page.count / maxCount) * 100);
+                        return (
+                          <div key={page.page_path}>
+                            <div className="flex items-center justify-between text-sm mb-1.5">
+                              <div className="flex items-center gap-3 min-w-0">
+                                <span className="text-xs font-medium text-gray-400 w-4">{String(idx + 1).padStart(2, "0")}</span>
+                                <span className="font-medium text-gray-700 truncate">{pageLabels[page.page_path] || page.page_path || "Home"}</span>
+                              </div>
+                              <span className="text-xs font-semibold text-gray-500">{page.count}</span>
+                            </div>
+                            <div className="w-full bg-gray-100 rounded-full h-1.5">
+                              <div
+                                className="h-full rounded-full bg-indigo-500 transition-all duration-500"
+                                style={{ width: `${percentage}%` }}
+                              />
+                            </div>
                           </div>
-                        </td>
-                        <td className="py-2.5 text-right">
-                          <span className="inline-flex items-center justify-center min-w-8 px-2 py-0.5 rounded-full bg-blue-50 text-blue-700 text-xs font-bold">{day.visitors}</span>
-                        </td>
-                        <td className="py-2.5 text-right">
-                          <span className="inline-flex items-center justify-center min-w-8 px-2 py-0.5 rounded-full bg-orange-50 text-orange-700 text-xs font-bold">{day.pageviews}</span>
-                        </td>
-                        <td className="py-2.5 text-right text-xs text-slate-500 hidden sm:table-cell font-medium">{day.visitors > 0 ? (day.pageviews / day.visitors).toFixed(1) : "—"}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+                        );
+                      })}
+                    </div>
+                  ) : (
+                    <div className="flex flex-col items-center py-8 text-gray-300">
+                      <svg className="h-8 w-8 mb-2" fill="none" viewBox="0 0 24 24" strokeWidth="1" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
+                      </svg>
+                      <p className="text-xs font-medium">No pages yet</p>
+                    </div>
+                  )}
+                </div>
               </div>
-            ) : (
-              <div className="text-center py-10">
-                <svg className="w-10 h-10 mx-auto text-slate-200 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                </svg>
-                <p className="text-sm text-slate-400 mb-1">No data yet</p>
-                <p className="text-[11px] text-slate-300">Start browsing to track visitors</p>
-              </div>
-            )}
-          </div>
-        </div>
 
-        {/* ── footer ── */}
-        <div className="mt-8 flex items-center justify-center gap-2 text-[11px] text-slate-300">
-          <div className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
-          <span>
-            Synced to Supabase <code className="bg-slate-100 px-1.5 py-0.5 rounded-md text-slate-400 font-mono text-[10px]">visitor_logs</code>
-          </span>
-          <span className="text-slate-200">•</span>
-          <span>Local fallback enabled</span>
-        </div>
-      </main>
+              {/* Daily Breakdown */}
+              <div className="lg:col-span-2">
+                <div className="rounded-xl bg-white shadow-sm ring-1 ring-gray-200/60">
+                  <div className="px-6 py-5 border-b border-gray-100">
+                    <h2 className="text-base font-semibold text-gray-900">Daily Breakdown</h2>
+                    <p className="mt-0.5 text-sm text-gray-500">Detailed daily visitor statistics</p>
+                  </div>
+                  {dailyStats.length > 0 ? (
+                    <div className="overflow-x-auto">
+                      <table className="w-full">
+                        <thead>
+                          <tr className="border-b border-gray-50">
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+                            <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Visitors</th>
+                            <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Pageviews</th>
+                            <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider hidden sm:table-cell">Ratio</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-gray-50">
+                          {[...dailyStats].reverse().slice(0, 10).map((day, idx) => (
+                            <tr key={day.date} className={`hover:bg-gray-50/50 transition-colors ${idx === 0 ? "bg-indigo-50/20" : ""}`}>
+                              <td className="px-6 py-3.5 whitespace-nowrap">
+                                <div className="flex items-center gap-2">
+                                  {idx === 0 && <span className="h-1.5 w-1.5 rounded-full bg-indigo-500" />}
+                                  <span className="text-sm font-medium text-gray-700">
+                                    {new Date(day.date + "T00:00:00").toLocaleDateString("en", { weekday: "short", month: "short", day: "numeric" })}
+                                  </span>
+                                </div>
+                              </td>
+                              <td className="px-6 py-3.5 whitespace-nowrap text-right">
+                                <span className="inline-flex items-center rounded-full bg-indigo-50 px-2.5 py-0.5 text-xs font-semibold text-indigo-700 ring-1 ring-inset ring-indigo-700/10">
+                                  {day.visitors}
+                                </span>
+                              </td>
+                              <td className="px-6 py-3.5 whitespace-nowrap text-right">
+                                <span className="inline-flex items-center rounded-full bg-orange-50 px-2.5 py-0.5 text-xs font-semibold text-orange-700 ring-1 ring-inset ring-orange-700/10">
+                                  {day.pageviews}
+                                </span>
+                              </td>
+                              <td className="px-6 py-3.5 whitespace-nowrap text-right text-sm text-gray-500 hidden sm:table-cell">
+                                {day.visitors > 0 ? (day.pageviews / day.visitors).toFixed(1) : "—"}
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  ) : (
+                    <div className="flex flex-col items-center py-12 text-gray-300">
+                      <svg className="h-10 w-10 mb-3" fill="none" viewBox="0 0 24 24" strokeWidth="1" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 002.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 00-1.123-.08m-5.801 0c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 00.75-.75 2.25 2.25 0 00-.1-.664m-5.8 0A2.251 2.251 0 0113.5 2.25H15c1.012 0 1.867.668 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m0 0H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V9.375c0-.621-.504-1.125-1.125-1.125H8.25zM6.75 12h.008v.008H6.75V12zm0 3h.008v.008H6.75V15zm0 3h.008v.008H6.75V18z" />
+                      </svg>
+                      <p className="text-sm font-medium">No data yet</p>
+                      <p className="text-xs mt-1">Start browsing to track visitors</p>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {/* Footer Status */}
+            <div className="mt-8 text-center">
+              <div className="inline-flex items-center gap-2 rounded-full bg-white px-4 py-2 shadow-sm ring-1 ring-gray-200/60 text-xs text-gray-400">
+                <span className="h-1.5 w-1.5 rounded-full bg-green-400" />
+                Synced to Supabase <code className="font-mono text-gray-500">visitor_logs</code>
+                <span className="text-gray-300">·</span>
+                Local fallback enabled
+              </div>
+            </div>
+          </div>
+        </main>
+      </div>
     </div>
   );
 }
