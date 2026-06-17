@@ -136,7 +136,7 @@ const MENU_GROUPS: {
 ];
 
 /* ───── Icon component ───── */
-function MenuIcon({ path }: { path: string }) {
+function MenuIcon({ path }: Readonly<{ path: string }>) {
   return (
     <svg
       className="w-4.5 h-4.5 shrink-0"
@@ -153,7 +153,7 @@ function MenuIcon({ path }: { path: string }) {
 }
 
 /* ───── Submenu arrow ───── */
-function ChevronDown({ open }: { open: boolean }) {
+function ChevronDown({ open }: Readonly<{ open: boolean }>) {
   return (
     <svg
       className={`w-3.5 h-3.5 transition-transform duration-200 ${open ? "rotate-180" : ""}`}
@@ -174,25 +174,138 @@ type SidebarProps = {
   onToggle?: () => void;
 };
 
-export default function Sidebar({ activePath, onNavigate, collapsed = false, onToggle }: SidebarProps) {
-  const [expandedMenus, setExpandedMenus] = useState<Record<string, boolean>>(() => {
-    // Auto-expand the menu containing active path
-    const initial: Record<string, boolean> = {};
-    MENU_GROUPS.forEach((group) => {
-      group.items.forEach((item) => {
-        if (item.submenu?.some((sub) => sub.path === activePath)) {
-          initial[item.label] = true;
-        }
-      });
-    });
-    return initial;
-  });
+/* ───── Submenu item button ───── */
+function SubmenuItem({
+  sub,
+  activePath,
+  onNavigate,
+}: Readonly<{
+  sub: { label: string; path: string };
+  activePath: string;
+  onNavigate: (path: string) => void;
+}>) {
+  const isActive = activePath === sub.path;
+  return (
+    <li key={sub.path}>
+      <button
+        onClick={() => onNavigate(sub.path)}
+        className={`w-full text-left px-3 py-1.5 rounded-md text-xs font-medium transition-all duration-150 ${
+          isActive
+            ? "text-blue-700 bg-blue-50"
+            : "text-slate-500 hover:text-slate-700 hover:bg-slate-50"
+        }`}
+      >
+        {sub.label}
+      </button>
+    </li>
+  );
+}
+
+/* ───── Menu item with submenu ───── */
+function MenuItemWithSubmenu({
+  item,
+  activePath,
+  collapsed,
+  expanded,
+  onToggle,
+  onNavigate,
+}: Readonly<{
+  item: MenuItem;
+  activePath: string;
+  collapsed: boolean;
+  expanded: boolean;
+  onToggle: () => void;
+  onNavigate: (path: string) => void;
+}>) {
+  const submenu = item.submenu ?? [];
+  const isParentActive = submenu.some((s) => s.path === activePath);
+
+  return (
+    <div>
+      <button
+        onClick={onToggle}
+        className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-150 ${
+          isParentActive
+            ? "text-blue-700 bg-blue-50/70"
+            : "text-slate-600 hover:text-slate-900 hover:bg-slate-50"
+        }`}
+        title={collapsed ? item.label : undefined}
+      >
+        <span className={`${isParentActive ? "text-blue-600" : "text-slate-400"}`}>
+          <MenuIcon path={item.icon} />
+        </span>
+        {!collapsed && (
+          <>
+            <span className="flex-1 text-left truncate">{item.label}</span>
+            <ChevronDown open={expanded} />
+          </>
+        )}
+      </button>
+      {!collapsed && expanded && (
+        <ul className="mt-0.5 ml-9 space-y-0.5 border-l-2 border-slate-100 pl-3">
+          {submenu.map((sub) => (
+            <SubmenuItem key={sub.path} sub={sub} activePath={activePath} onNavigate={onNavigate} />
+          ))}
+        </ul>
+      )}
+    </div>
+  );
+}
+
+/* ───── Menu item without submenu ───── */
+function MenuItemPlain({
+  item,
+  activePath,
+  collapsed,
+  onNavigate,
+}: Readonly<{
+  item: MenuItem;
+  activePath: string;
+  collapsed: boolean;
+  onNavigate: (path: string) => void;
+}>) {
+  return (
+    <button
+      onClick={() => item.path && onNavigate(item.path)}
+      className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-150 ${
+        activePath === (item.path ?? "")
+          ? "text-blue-700 bg-blue-50/70 shadow-sm"
+          : "text-slate-600 hover:text-slate-900 hover:bg-slate-50"
+      }`}
+      title={collapsed ? item.label : undefined}
+    >
+      <span className={`${activePath === (item.path ?? "") ? "text-blue-600" : "text-slate-400"}`}>
+        <MenuIcon path={item.icon} />
+      </span>
+      {!collapsed && <span className="truncate">{item.label}</span>}
+      {!collapsed && item.badge && (
+        <span className="ml-auto inline-flex items-center justify-center px-1.5 py-0.5 rounded-full text-[10px] font-bold bg-blue-100 text-blue-700">
+          {item.badge}
+        </span>
+      )}
+    </button>
+  );
+}
+
+function buildInitialExpanded(activePath: string): Record<string, boolean> {
+  const initial: Record<string, boolean> = {};
+  for (const group of MENU_GROUPS) {
+    for (const item of group.items) {
+      const submenu = item.submenu ?? [];
+      if (submenu.some((sub) => sub.path === activePath)) {
+        initial[item.label] = true;
+      }
+    }
+  }
+  return initial;
+}
+
+export default function Sidebar({ activePath, onNavigate, collapsed = false, onToggle }: Readonly<SidebarProps>) {
+  const [expandedMenus, setExpandedMenus] = useState<Record<string, boolean>>(() => buildInitialExpanded(activePath));
 
   const toggleSubmenu = (label: string) => {
     setExpandedMenus((prev) => ({ ...prev, [label]: !prev[label] }));
   };
-
-  const isActive = (path: string) => activePath === path;
 
   return (
     <aside
@@ -233,7 +346,6 @@ export default function Sidebar({ activePath, onNavigate, collapsed = false, onT
       <nav className="flex-1 overflow-y-auto overflow-x-hidden px-2 py-4 scrollbar-thin">
         {MENU_GROUPS.map((group) => (
           <div key={group.section} className="mb-5 last:mb-0">
-            {/* Section header */}
             {!collapsed && (
               <div className="px-3 mb-2 mt-1">
                 <span className="text-[10px] font-semibold tracking-[0.12em] text-slate-400 uppercase">
@@ -241,78 +353,27 @@ export default function Sidebar({ activePath, onNavigate, collapsed = false, onT
                 </span>
               </div>
             )}
-
             <ul className="space-y-0.5">
               {group.items.map((item) => {
                 const hasSubmenu = item.submenu && item.submenu.length > 0;
-                const isExpanded = expandedMenus[item.label] ?? false;
-                const isParentActive = item.path ? isActive(item.path) : hasSubmenu && item.submenu!.some((s) => isActive(s.path));
-
                 return (
                   <li key={item.label}>
                     {hasSubmenu ? (
-                      /* ── Item with submenu ── */
-                      <div>
-                        <button
-                          onClick={() => toggleSubmenu(item.label)}
-                          className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-150 ${
-                            isParentActive
-                              ? "text-blue-700 bg-blue-50/70"
-                              : "text-slate-600 hover:text-slate-900 hover:bg-slate-50"
-                          }`}
-                          title={collapsed ? item.label : undefined}
-                        >
-                          <span className={`${isParentActive ? "text-blue-600" : "text-slate-400"}`}>
-                            <MenuIcon path={item.icon} />
-                          </span>
-                          {!collapsed && (
-                            <>
-                              <span className="flex-1 text-left truncate">{item.label}</span>
-                              <ChevronDown open={isExpanded} />
-                            </>
-                          )}
-                        </button>
-                        {/* Submenu */}
-                        {!collapsed && isExpanded && (
-                          <ul className="mt-0.5 ml-9 space-y-0.5 border-l-2 border-slate-100 pl-3">
-                            {item.submenu!.map((sub) => (
-                              <li key={sub.path}>
-                                <button
-                                  onClick={() => onNavigate(sub.path)}
-                                  className={`w-full text-left px-3 py-1.5 rounded-md text-xs font-medium transition-all duration-150 ${
-                                    isActive(sub.path)
-                                      ? "text-blue-700 bg-blue-50"
-                                      : "text-slate-500 hover:text-slate-700 hover:bg-slate-50"
-                                  }`}
-                                >
-                                  {sub.label}
-                                </button>
-                              </li>
-                            ))}
-                          </ul>
-                        )}
-                      </div>
+                      <MenuItemWithSubmenu
+                        item={item}
+                        activePath={activePath}
+                        collapsed={collapsed}
+                        expanded={expandedMenus[item.label] ?? false}
+                        onToggle={() => toggleSubmenu(item.label)}
+                        onNavigate={onNavigate}
+                      />
                     ) : (
-                      /* ── Item without submenu ── */
-                      <button
-                        onClick={() => item.path && onNavigate(item.path)}
-                        className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-150 ${
-                          isActive(item.path!)
-                            ? "text-blue-700 bg-blue-50/70 shadow-sm"
-                            : "text-slate-600 hover:text-slate-900 hover:bg-slate-50"
-                        }`}
-                        title={collapsed ? item.label : undefined}
-                      >
-                        <span className={`${isActive(item.path!) ? "text-blue-600" : "text-slate-400"}`}>
-                          <MenuIcon path={item.icon} />
-                        </span>
-                        {!collapsed && <span className="truncate">{item.label}</span>}
-                        {!collapsed && item.badge && (
-                          <span className="ml-auto inline-flex items-center justify-center px-1.5 py-0.5 rounded-full text-[10px] font-bold bg-blue-100 text-blue-700">
-                            {item.badge}
-                          </span>
-                        )}
-                      </button>
+                      <MenuItemPlain
+                        item={item}
+                        activePath={activePath}
+                        collapsed={collapsed}
+                        onNavigate={onNavigate}
+                      />
                     )}
                   </li>
                 );

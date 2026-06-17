@@ -58,7 +58,18 @@ const SAMPLE_NOTIFICATIONS: Notification[] = [
   },
 ];
 
-export default function TopNav({ userEmail, onSearch, onLogout, onNavigate }: TopNavProps) {
+function getNotifColor(type: Notification["type"]): string {
+  switch (type) {
+    case "chat":
+      return "bg-blue-100 text-blue-600";
+    case "service":
+      return "bg-orange-100 text-orange-600";
+    case "design":
+      return "bg-purple-100 text-purple-600";
+  }
+}
+
+export default function TopNav({ userEmail, onSearch, onLogout, onNavigate }: Readonly<TopNavProps>) {
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [notifOpen, setNotifOpen] = useState(false);
@@ -84,7 +95,7 @@ export default function TopNav({ userEmail, onSearch, onLogout, onNavigate }: To
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  const handleSearchSubmit = (e: React.FormEvent) => {
+  const handleSearchSubmit = (e: React.SyntheticEvent) => {
     e.preventDefault();
     // Sanitize search input - strip HTML tags and limit length
     const sanitized = searchQuery.replace(/<[^>]*>/g, "").trim().slice(0, 100);
@@ -199,11 +210,7 @@ export default function TopNav({ userEmail, onSearch, onLogout, onNavigate }: To
                         >
                           <div
                             className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${
-                              notif.type === "chat"
-                                ? "bg-blue-100 text-blue-600"
-                                : notif.type === "service"
-                                ? "bg-orange-100 text-orange-600"
-                                : "bg-purple-100 text-purple-600"
+                              getNotifColor(notif.type)
                             }`}
                           >
                             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.8">
