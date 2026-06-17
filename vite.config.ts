@@ -6,7 +6,6 @@ export default defineConfig({
   plugins: [react(), tailwindcss()],
   build: {
     rollupOptions: {
-      external: ["tailwindcss"],
       output: {
         manualChunks(id) {
           // Memisahkan Supabase ke dalam chunk tersendiri
