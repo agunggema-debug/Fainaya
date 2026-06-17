@@ -1,12 +1,23 @@
 @import "tailwindcss";
 
+/* Tailwind v4 custom theme configuration */
+@theme {
+  --color-brand-dark: #0f172a;
+  --color-brand-gray: #1e293b;
+  --color-brand-blue: #3b82f6;
+  --color-brand-coral: #f97316;
+  --color-brand-light: #f8fafc;
+}
+
 /* ==========================================
    Fainaya Service & Art — Custom Styles
    ========================================== */
 
 /* ---------- Base ---------- */
-* {
-  font-family: "Inter", sans-serif;
+@layer base {
+  * {
+    font-family: "Inter", sans-serif;
+  }
 }
 
 /* ---------- Gradient Text ---------- */
@@ -60,6 +71,10 @@
 
 /* ---------- Animations ---------- */
 @keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
   to {
     opacity: 1;
     transform: translateY(0);
@@ -393,13 +408,4 @@
     width: 54px;
     height: 54px;
   }
-}
-
-/* Tailwind v4 custom theme */
-@theme {
-  --color-brand-dark: #0f172a;
-  --color-brand-gray: #1e293b;
-  --color-brand-blue: #3b82f6;
-  --color-brand-coral: #f97316;
-  --color-brand-light: #f8fafc;
 }
