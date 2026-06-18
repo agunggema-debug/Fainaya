@@ -11,6 +11,26 @@
   font-family: "Inter", sans-serif;
 }
 
+/* ---------- Dark Mode Base ---------- */
+.dark body,
+.dark {
+  color-scheme: dark;
+}
+
+@layer base {
+  body {
+    @apply text-gray-900 bg-gray-50 dark:text-gray-100 dark:bg-gray-950 transition-colors duration-200;
+  }
+}
+
+/* ---------- Scrollbar (Dark) ---------- */
+.dark ::-webkit-scrollbar-thumb {
+  background: #334155 !important;
+}
+.dark ::-webkit-scrollbar-track {
+  background: #1e293b !important;
+}
+
 /* ---------- Gradient Text ---------- */
 .gradient-text {
   background: linear-gradient(135deg, #1d4ed8, #c2410c);
