@@ -55,12 +55,15 @@ export default function DaftarPelanggan() {
   const [statusFilter, setStatusFilter] = useState<"semua" | "aktif" | "nonaktif">("semua");
   const [pelanggan, setPelanggan] = useState<Pelanggan[]>([]);
   const [dataLoading, setDataLoading] = useState(true);
+  const [dataSource, setDataSource] = useState<"supabase" | "local">("local");
 
   useEffect(() => {
     async function loadData() {
       try {
         const data = await fetchPelanggan();
         setPelanggan(data);
+        // Determine source: if data has real UUID (not "dummy-"), it's from Supabase
+        setDataSource(data.length > 0 && !data[0].id.startsWith("dummy-") ? "supabase" : "local");
       } finally {
         setDataLoading(false);
       }
@@ -92,6 +95,12 @@ export default function DaftarPelanggan() {
 
   const handleSearch = (query: string) => {
     console.log("Search:", query);
+  };
+
+  const statusLabels: Record<string, string> = {
+    semua: "Semua",
+    aktif: "Aktif",
+    nonaktif: "Nonaktif",
   };
 
   /* ── Filtering ── */
@@ -217,7 +226,7 @@ export default function DaftarPelanggan() {
                         : "text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200"
                     }`}
                   >
-                    {s === "semua" ? "Semua" : s === "aktif" ? "Aktif" : "Nonaktif"}
+                    {statusLabels[s]}
                   </button>
                 ))}
               </div>
@@ -320,8 +329,14 @@ export default function DaftarPelanggan() {
             <footer className="mt-10 border-t border-gray-200/60 dark:border-gray-800 pt-6 pb-4">
               <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
                 <div className="flex items-center gap-2 text-xs text-gray-400 dark:text-gray-500">
-                  <span className="h-1.5 w-1.5 rounded-full bg-green-400" />
+                  <span className={`h-1.5 w-1.5 rounded-full ${dataSource === "supabase" ? "bg-green-400" : "bg-yellow-400"}`} />
                   <span>Data pelanggan — {pelanggan.length} total terdaftar</span>
+                </div>
+                <div className="inline-flex items-center gap-2 rounded-full bg-white dark:bg-gray-900 px-4 py-2 shadow-sm ring-1 ring-gray-200/60 dark:ring-gray-800 text-xs text-gray-400 dark:text-gray-500">
+                  <span className={`h-1.5 w-1.5 rounded-full ${dataSource === "supabase" ? "bg-green-400" : "bg-yellow-400"}`} />
+                  <span>{dataSource === "supabase" ? "Terhubung ke Supabase" : "Data lokal (fallback)"}</span>
+                  <span className="text-gray-300 dark:text-gray-600">&middot;</span>
+                  <span>tabel <code className="font-mono text-gray-500 dark:text-gray-400">pelanggan</code></span>
                 </div>
                 <p className="text-[11px] text-gray-400 dark:text-gray-500">
                   &copy; {new Date().getFullYear()} Fainaya Service & Art. All rights reserved.

@@ -31,7 +31,9 @@ export function getLocalPelanggan(): Pelanggan[] {
   try {
     const stored = localStorage.getItem("fainaya_pelanggan");
     if (stored) return JSON.parse(stored);
-  } catch {}
+  } catch {
+    // ignore
+  }
   return generateDummyPelanggan();
 }
 
@@ -39,7 +41,9 @@ export function getLocalLogAktivitas(): LogAktivitas[] {
   try {
     const stored = localStorage.getItem("fainaya_log_aktivitas");
     if (stored) return JSON.parse(stored);
-  } catch {}
+  } catch {
+    // ignore
+  }
   return generateDummyLogAktivitas();
 }
 

@@ -3,6 +3,8 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../hooks/useAuth";
 import { fetchSupabaseTotalStats, fetchSupabaseDailyStats, getLocalTotalStats, getLocalDailyStats } from "../../data/visitorTracker";
 import type { DailyStats, PageStats } from "../../data/visitorTracker";
+import { fetchPelanggan, fetchLogAktivitas } from "../../data/pelanggan";
+import type { Pelanggan, LogAktivitas } from "../../data/pelanggan";
 import Sidebar from "../../components/admin/Sidebar";
 import TopNav from "../../components/admin/TopNav";
 
@@ -96,6 +98,36 @@ function StatCard({
   );
 }
 
+/* ───── Format time ago ───── */
+function formatTimeAgo(isoString: string): string {
+  const diff = Date.now() - new Date(isoString).getTime();
+  const minutes = Math.floor(diff / 60000);
+  if (minutes < 1) return "Baru saja";
+  if (minutes < 60) return `${minutes} menit lalu`;
+  const hours = Math.floor(minutes / 60);
+  if (hours < 24) return `${hours} jam lalu`;
+  const days = Math.floor(hours / 24);
+  return `${days} hari lalu`;
+}
+
+/* ───── Tipe Badge ───── */
+const tipeConfig: Record<string, { bg: string; text: string; label: string }> = {
+  kunjungan: { bg: "bg-blue-50 dark:bg-blue-900/30", text: "text-blue-700 dark:text-blue-300", label: "Kunjungan" },
+  servis: { bg: "bg-amber-50 dark:bg-amber-900/30", text: "text-amber-700 dark:text-amber-300", label: "Servis" },
+  transaksi: { bg: "bg-green-50 dark:bg-green-900/30", text: "text-green-700 dark:text-green-300", label: "Transaksi" },
+  profil: { bg: "bg-purple-50 dark:bg-purple-900/30", text: "text-purple-700 dark:text-purple-300", label: "Profil" },
+  pesanan: { bg: "bg-rose-50 dark:bg-rose-900/30", text: "text-rose-700 dark:text-rose-300", label: "Pesanan" },
+};
+
+function TipeBadge({ tipe }: Readonly<{ tipe: LogAktivitas["tipe"] }>) {
+  const c = tipeConfig[tipe];
+  return (
+    <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-medium ${c.bg} ${c.text} ring-1 ring-inset ring-current/10`}>
+      {c.label}
+    </span>
+  );
+}
+
 export default function Dashboard() {
   const { user, loading, logout } = useAuth();
   const navigate = useNavigate();
@@ -106,26 +138,51 @@ export default function Dashboard() {
   const [dataLoading, setDataLoading] = useState(true);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [activeTab, setActiveTab] = useState<ActiveTab>("visitors");
+  const [dataSource, setDataSource] = useState<"supabase" | "local">("local");
+  const [pelangganList, setPelangganList] = useState<Pelanggan[]>([]);
+  const [logList, setLogList] = useState<LogAktivitas[]>([]);
+  const [pelangganSource, setPelangganSource] = useState<"supabase" | "local">("local");
 
   useEffect(() => {
     async function loadData() {
+      // Load visitor stats
       try {
         const supabaseData = await fetchSupabaseTotalStats();
         if (supabaseData && supabaseData.totalDays > 0) {
           setData(supabaseData);
           setDailyStats(supabaseData.dailyStats);
+          setDataSource("supabase");
         } else {
           const localData = getLocalTotalStats();
           setData(localData);
           setDailyStats(localData.dailyStats);
+          setDataSource("local");
         }
       } catch {
         const localData = getLocalTotalStats();
         setData(localData);
         setDailyStats(localData.dailyStats);
-      } finally {
-        setDataLoading(false);
+        setDataSource("local");
       }
+
+      // Load pelanggan summary
+      try {
+        const pelanggan = await fetchPelanggan();
+        setPelangganList(pelanggan);
+        setPelangganSource(pelanggan.length > 0 && !pelanggan[0].id.startsWith("dummy-") ? "supabase" : "local");
+      } catch {
+        // ignore
+      }
+
+      // Load recent logs
+      try {
+        const logs = await fetchLogAktivitas();
+        setLogList(logs);
+      } catch {
+        // ignore
+      }
+
+      setDataLoading(false);
     }
     loadData();
   }, []);
@@ -197,6 +254,11 @@ export default function Dashboard() {
     "/#about": "About",
     "/#contact": "Contact",
   };
+
+  /* ── Pelanggan summary ── */
+  const totalPelanggan = pelangganList.length;
+  const totalAktif = pelangganList.filter((p) => p.status === "aktif").length;
+  const totalNonaktif = pelangganList.filter((p) => p.status === "nonaktif").length;
 
   function renderStatsGrid() {
     return (
@@ -415,10 +477,76 @@ export default function Dashboard() {
 
   function renderFooter() {
     const currentYear = new Date().getFullYear();
+    const recentLogs = logList.slice(0, 5);
     return (
       <footer className="mt-10 border-t border-gray-200/60 dark:border-gray-800 pt-6 pb-4">
+        {/* Ringkasan Pelanggan */}
+        <div className="rounded-xl bg-white dark:bg-gray-900 p-5 shadow-sm ring-1 ring-gray-200/60 dark:ring-gray-800 mb-6">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-base font-semibold text-gray-900 dark:text-gray-100">Ringkasan Pelanggan</h2>
+            <span className={`h-1.5 w-1.5 rounded-full ${pelangganSource === "supabase" ? "bg-green-400" : "bg-yellow-400"}`} />
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div className="rounded-lg bg-gray-50 dark:bg-gray-800 p-4 text-center">
+              <p className="text-xl font-bold text-gray-900 dark:text-gray-100">{totalPelanggan}</p>
+              <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Total Pelanggan</p>
+            </div>
+            <div className="rounded-lg bg-green-50 dark:bg-green-900/20 p-4 text-center">
+              <p className="text-xl font-bold text-green-700 dark:text-green-300">{totalAktif}</p>
+              <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Aktif</p>
+            </div>
+            <div className="rounded-lg bg-red-50 dark:bg-red-900/20 p-4 text-center">
+              <p className="text-xl font-bold text-red-700 dark:text-red-300">{totalNonaktif}</p>
+              <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Nonaktif</p>
+            </div>
+          </div>
+          <p className="text-[11px] text-gray-400 dark:text-gray-500 text-center mt-3">
+            Data dari tabel <code className="font-mono text-gray-500 dark:text-gray-400">pelanggan</code> &middot; {pelangganSource === "supabase" ? "Terhubung ke Supabase" : "Data lokal (fallback)"}
+          </p>
+        </div>
+
+        {/* Aktivitas Terkini */}
+        <div className="rounded-xl bg-white dark:bg-gray-900 p-5 shadow-sm ring-1 ring-gray-200/60 dark:ring-gray-800 mb-6">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-base font-semibold text-gray-900 dark:text-gray-100">Aktivitas Terkini</h2>
+            {recentLogs.length > 0 && (
+              <span className="rounded-full bg-gray-100 dark:bg-gray-800 px-2.5 py-0.5 text-xs font-medium text-gray-600 dark:text-gray-400">
+                {logList.length} total
+              </span>
+            )}
+          </div>
+          {recentLogs.length > 0 ? (
+            <div className="space-y-3">
+              {recentLogs.map((log) => (
+                <div key={log.id} className="flex items-start gap-3 p-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2">
+                      <TipeBadge tipe={log.tipe} />
+                      <span className="text-xs font-medium text-gray-900 dark:text-gray-100 truncate">{log.pelanggan_nama}</span>
+                    </div>
+                    <p className="text-[11px] text-gray-500 dark:text-gray-400 mt-0.5 truncate">{log.deskripsi}</p>
+                  </div>
+                  <span className="text-[10px] text-gray-400 dark:text-gray-500 whitespace-nowrap shrink-0">
+                    {formatTimeAgo(log.timestamp)}
+                  </span>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="flex flex-col items-center py-6 text-gray-300 dark:text-gray-600">
+              <svg className="h-8 w-8 mb-2" fill="none" viewBox="0 0 24 24" strokeWidth="1" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              <p className="text-xs font-medium">Belum ada aktivitas</p>
+            </div>
+          )}
+          <p className="text-[11px] text-gray-400 dark:text-gray-500 text-center mt-3">
+            Data dari tabel <code className="font-mono text-gray-500 dark:text-gray-400">log_aktivitas</code> &middot; 5 terbaru ditampilkan
+          </p>
+        </div>
+
+        {/* Original footer: status + copyright */}
         <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-          {/* Left: Status indicator */}
           <div className="flex items-center gap-3">
             <div className="w-8 h-8 rounded-lg bg-gray-100 dark:bg-gray-800 flex items-center justify-center text-gray-500 dark:text-gray-400 shadow-sm">
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.8">
@@ -431,16 +559,14 @@ export default function Dashboard() {
             </div>
           </div>
 
-          {/* Center: Database status */}
           <div className="inline-flex items-center gap-2 rounded-full bg-white dark:bg-gray-900 px-4 py-2 shadow-sm ring-1 ring-gray-200/60 dark:ring-gray-800 text-xs text-gray-400 dark:text-gray-500">
-            <span className="h-1.5 w-1.5 rounded-full bg-green-400" />
-            <span>Synced to Supabase </span>
+            <span className={`h-1.5 w-1.5 rounded-full ${dataSource === "supabase" ? "bg-green-400" : "bg-yellow-400"}`} />
+            <span>{dataSource === "supabase" ? "Terhubung ke Supabase" : "Data lokal (fallback)"}</span>
             <code className="font-mono text-gray-500 dark:text-gray-400">visitor_logs</code>
             <span className="text-gray-300 dark:text-gray-600">{'\u00B7'}</span>
             <span>Local fallback enabled</span>
           </div>
 
-          {/* Right: Copyright */}
           <p className="text-[11px] text-gray-400 dark:text-gray-500">
             &copy; {currentYear} Fainaya Service & Art. All rights reserved.
           </p>

@@ -79,12 +79,14 @@ export default function LogAktivitas() {
   const [searchQuery, setSearchQuery] = useState("");
   const [logs, setLogs] = useState<LogAktivitas[]>([]);
   const [dataLoading, setDataLoading] = useState(true);
+  const [dataSource, setDataSource] = useState<"supabase" | "local">("local");
 
   useEffect(() => {
     async function loadData() {
       try {
         const data = await fetchLogAktivitas();
         setLogs(data);
+        setDataSource(data.length > 0 && !data[0].id.startsWith("dummy-") ? "supabase" : "local");
       } finally {
         setDataLoading(false);
       }
@@ -177,8 +179,9 @@ export default function LogAktivitas() {
             {/* Stat Summary */}
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 mb-6">
               {FILTER_OPTIONS.map((opt) => (
-                <div
+                <button
                   key={opt.value}
+                  type="button"
                   className={`rounded-lg p-3 text-center cursor-pointer transition-all ${
                     filter === opt.value
                       ? "bg-blue-50 dark:bg-blue-900/20 ring-2 ring-blue-500 dark:ring-blue-400"
@@ -188,7 +191,7 @@ export default function LogAktivitas() {
                 >
                   <p className="text-lg font-bold text-gray-900 dark:text-gray-100">{logCounts[opt.value]}</p>
                   <p className="text-[10px] font-medium text-gray-500 dark:text-gray-400 mt-0.5 truncate">{opt.label}</p>
-                </div>
+                </button>
               ))}
             </div>
 
@@ -259,8 +262,14 @@ export default function LogAktivitas() {
             <footer className="mt-10 border-t border-gray-200/60 dark:border-gray-800 pt-6 pb-4">
               <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
                 <div className="flex items-center gap-2 text-xs text-gray-400 dark:text-gray-500">
-                  <span className="h-1.5 w-1.5 rounded-full bg-green-400" />
+                  <span className={`h-1.5 w-1.5 rounded-full ${dataSource === "supabase" ? "bg-green-400" : "bg-yellow-400"}`} />
                   <span>Log aktivitas — {logs.length} total catatan</span>
+                </div>
+                <div className="inline-flex items-center gap-2 rounded-full bg-white dark:bg-gray-900 px-4 py-2 shadow-sm ring-1 ring-gray-200/60 dark:ring-gray-800 text-xs text-gray-400 dark:text-gray-500">
+                  <span className={`h-1.5 w-1.5 rounded-full ${dataSource === "supabase" ? "bg-green-400" : "bg-yellow-400"}`} />
+                  <span>{dataSource === "supabase" ? "Terhubung ke Supabase" : "Data lokal (fallback)"}</span>
+                  <span className="text-gray-300 dark:text-gray-600">&middot;</span>
+                  <span>tabel <code className="font-mono text-gray-500 dark:text-gray-400">log_aktivitas</code></span>
                 </div>
                 <p className="text-[11px] text-gray-400 dark:text-gray-500">
                   &copy; {new Date().getFullYear()} Fainaya Service & Art. All rights reserved.
