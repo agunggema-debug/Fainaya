@@ -3,8 +3,9 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import VisitorTracker from "./components/VisitorTracker";
 import HomePage from "./pages/HomePage";
 
-// Lazy load the Dashboard to reduce initial bundle size
+// Lazy load admin pages
 const Dashboard = lazy(() => import("./pages/admin/Dashboard"));
+const AktivitasTerkini = lazy(() => import("./pages/admin/AktivitasTerkini"));
 
 function App() {
   return (
@@ -14,6 +15,7 @@ function App() {
         <Routes>
           <Route path="/" element={<HomePage />} />
           <Route path="/admin/dashboard" element={<Dashboard />} />
+          <Route path="/admin/dashboard/aktivitas" element={<AktivitasTerkini />} />
         </Routes>
       </Suspense>
     </BrowserRouter>
