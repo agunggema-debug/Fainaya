@@ -88,6 +88,15 @@ const MENU_GROUPS: {
           { label: "Laporan Perawatan", path: "/admin/maintenance/laporan" },
         ],
       },
+      {
+        label: "System Development",
+        icon: ICONS.cube,
+        submenu: [
+          { label: "Custom Software", path: "/admin/development/software" },
+          { label: "Web Applications", path: "/admin/development/web" },
+          { label: "Database Management", path: "/admin/development/database" },
+        ],
+      },
     ],
   },
   {
