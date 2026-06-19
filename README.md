@@ -1,73 +1,83 @@
-# React + TypeScript + Vite
+# Fainaya — Admin Dashboard & Business Management Platform
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Platform manajemen bisnis terpadu berbasis web untuk Fainaya, mencakup layanan IT support, studio kreatif, manajemen inventaris, keuangan, dan integrasi chatbot.
 
-Currently, two official plugins are available:
+## Tech Stack
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+- **Frontend:** React 19, TypeScript, Vite 6
+- **Styling:** Tailwind CSS 3
+- **Routing:** React Router v7
+- **Backend & Auth:** Supabase
+- **Build Tool:** Vite
 
-## React Compiler
+## Fitur Utama
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+### Ringkasan & Utama
+- Dashboard / Beranda — ringkasan aktivitas dan metrik bisnis
+- Manajemen Pelanggan / Klien
 
-## Expanding the ESLint configuration
+### Layanan IT
+- Servis & Perbaikan — antrean, proses, dan riwayat servis
+- Log Perawatan — jadwal dan laporan perawatan
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+### Studio Kreatif
+- Proyek Desain — brief, tahap desain/revisi, galeri portofolio
+- Proyek Kreasi Tangan — pesanan dan proses pembuatan
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+### Operasional & Logistik
+- Inventaris & Stok — daftar stok dan mutasi barang
+- Keuangan & Kas — tagihan/invoices dan pengeluaran
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+### Pengaturan
+- Integrasi Chatbot & Website
+- Pengaturan Sistem — pengaturan umum dan keamanan akses
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+## Memulai
+
+```bash
+# Install dependencies
+npm install
+
+# Jalankan development server
+npm run dev
+
+# Build production
+npm run build
+
+# Preview production build
+npm run preview
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## Struktur Direktori
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
 ```
+src/
+├── components/       # Komponen UI (Sidebar, TopNav, dll)
+├── data/             # Data layer & konfigurasi Supabase
+├── hooks/            # Custom React hooks
+├── pages/            # Halaman aplikasi
+├── App.tsx           # Root component
+├── main.tsx          # Entry point
+└── index.css         # Global styles & Tailwind directives
+```
+
+## Keamanan & Kepatuhan
+
+Proyek ini dikembangkan dengan prinsip keamanan sebagai berikut:
+
+### A. Perlindungan Data (Data Privacy)
+- Tidak ada database schema asli, kunci API, credentials, atau data sensitif klien yang dimasukkan ke dalam prompt AI.
+- Data sensitif diganti dengan data dummy atau masking sebelum diproses.
+
+### B. Konfigurasi Alat
+- Menggunakan akun dengan kebijakan **No-Training** — data tidak digunakan untuk melatih model publik.
+- Telemetry dinonaktifkan sesuai kebijakan privasi klien.
+
+### C. Validasi Kode (Human-in-the-Loop)
+- Seluruh kode output AI diperiksa untuk celah keamanan menggunakan linter/SAST sebelum di-commit.
+- Setiap kode melewati review untuk kesesuaian logika bisnis.
+- Pengembang memikul tanggung jawab penuh atas kode yang di-commit ke repositori.
+
+## Lisensi
+
+Hak cipta © 2026 Fainaya. Seluruh hak cipta dilindungi.
