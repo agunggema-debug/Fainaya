@@ -42,7 +42,7 @@ const ICONS = {
     "M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z",
 };
 
-/* ───── Define menu structure from dashboarb.md ───── */
+/* ───── Define menu structure ───── */
 const MENU_GROUPS: {
   section: string;
   items: MenuItem[];
@@ -53,12 +53,18 @@ const MENU_GROUPS: {
       {
         label: "Dashboard / Beranda",
         icon: ICONS.dashboard,
-        path: "/admin/dashboard",
+        submenu: [
+          { label: "Ringkasan", path: "/admin/dashboard" },
+          { label: "Aktivitas Terkini", path: "/admin/dashboard/aktivitas" },
+        ],
       },
       {
         label: "Pelanggan / Klien",
         icon: ICONS.users,
-        path: "/admin/pelanggan",
+        submenu: [
+          { label: "Daftar Pelanggan", path: "/admin/pelanggan" },
+          { label: "Log Aktivitas", path: "/admin/pelanggan/aktivitas" },
+        ],
       },
     ],
   },
@@ -77,7 +83,10 @@ const MENU_GROUPS: {
       {
         label: "Log Perawatan",
         icon: ICONS.clipboard,
-        path: "/admin/maintenance",
+        submenu: [
+          { label: "Jadwal Perawatan", path: "/admin/maintenance/jadwal" },
+          { label: "Laporan Perawatan", path: "/admin/maintenance/laporan" },
+        ],
       },
     ],
   },
@@ -96,7 +105,10 @@ const MENU_GROUPS: {
       {
         label: "Proyek Kreasi Tangan",
         icon: ICONS.heart,
-        path: "/admin/kreasi",
+        submenu: [
+          { label: "Pesanan Masuk", path: "/admin/kreasi/pesanan" },
+          { label: "Proses Pembuatan", path: "/admin/kreasi/proses" },
+        ],
       },
     ],
   },
@@ -106,7 +118,10 @@ const MENU_GROUPS: {
       {
         label: "Inventaris & Stok",
         icon: ICONS.collection,
-        path: "/admin/inventaris",
+        submenu: [
+          { label: "Daftar Stok", path: "/admin/inventaris/daftar" },
+          { label: "Mutasi Stok", path: "/admin/inventaris/mutasi" },
+        ],
       },
       {
         label: "Keuangan & Kas",
@@ -124,12 +139,18 @@ const MENU_GROUPS: {
       {
         label: "Integrasi Chatbot & Website",
         icon: ICONS.robot,
-        path: "/admin/integrasi",
+        submenu: [
+          { label: "Konfigurasi Chatbot", path: "/admin/integrasi/chatbot" },
+          { label: "Integrasi Website", path: "/admin/integrasi/website" },
+        ],
       },
       {
         label: "Pengaturan Sistem",
         icon: ICONS.cog,
-        path: "/admin/pengaturan",
+        submenu: [
+          { label: "Pengaturan Umum", path: "/admin/pengaturan/umum" },
+          { label: "Keamanan & Akses", path: "/admin/pengaturan/keamanan" },
+        ],
       },
     ],
   },
@@ -139,7 +160,7 @@ const MENU_GROUPS: {
 function MenuIcon({ path }: Readonly<{ path: string }>) {
   return (
     <svg
-      className="w-4.5 h-4.5 shrink-0"
+      className="w-5 h-5 shrink-0"
       fill="none"
       stroke="currentColor"
       viewBox="0 0 24 24"
@@ -259,43 +280,6 @@ function MenuItemWithSubmenu({
   );
 }
 
-/* ───── Menu item without submenu ───── */
-function MenuItemPlain({
-  item,
-  activePath,
-  collapsed,
-  onNavigate,
-}: Readonly<{
-  item: MenuItem;
-  activePath: string;
-  collapsed: boolean;
-  onNavigate: (path: string) => void;
-}>) {
-  return (
-    <button
-      onClick={() => item.path && onNavigate(item.path)}
-      className={`w-full flex items-center justify-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-150 ${
-        collapsed ? "px-0" : ""
-      } ${
-        activePath === (item.path ?? "")
-          ? "text-blue-700 dark:text-blue-400 bg-blue-50/70 dark:bg-blue-900/20 shadow-sm"
-          : "text-slate-600 dark:text-gray-400 hover:text-slate-900 dark:hover:text-gray-200 hover:bg-slate-50 dark:hover:bg-gray-800"
-      }`}
-      title={collapsed ? item.label : undefined}
-    >
-      <span className={`${activePath === (item.path ?? "") ? "text-blue-600 dark:text-blue-400" : "text-slate-400 dark:text-gray-500"}`}>
-        <MenuIcon path={item.icon} />
-      </span>
-      {!collapsed && <span className="truncate">{item.label}</span>}
-      {!collapsed && item.badge && (
-        <span className="ml-auto inline-flex items-center justify-center px-1.5 py-0.5 rounded-full text-[10px] font-bold bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300">
-          {item.badge}
-        </span>
-      )}
-    </button>
-  );
-}
-
 function buildInitialExpanded(activePath: string): Record<string, boolean> {
   const initial: Record<string, boolean> = {};
   for (const group of MENU_GROUPS) {
@@ -377,12 +361,27 @@ export default function Sidebar({ activePath, onNavigate, collapsed = false, onT
                         onNavigate={onNavigate}
                       />
                     ) : (
-                      <MenuItemPlain
-                        item={item}
-                        activePath={activePath}
-                        collapsed={collapsed}
-                        onNavigate={onNavigate}
-                      />
+                      <button
+                        onClick={() => item.path && onNavigate(item.path)}
+                        className={`w-full flex items-center justify-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-150 ${
+                          collapsed ? "px-0" : ""
+                        } ${
+                          activePath === (item.path ?? "")
+                            ? "text-blue-700 dark:text-blue-400 bg-blue-50/70 dark:bg-blue-900/20 shadow-sm"
+                            : "text-slate-600 dark:text-gray-400 hover:text-slate-900 dark:hover:text-gray-200 hover:bg-slate-50 dark:hover:bg-gray-800"
+                        }`}
+                        title={collapsed ? item.label : undefined}
+                      >
+                        <span className={`${activePath === (item.path ?? "") ? "text-blue-600 dark:text-blue-400" : "text-slate-400 dark:text-gray-500"}`}>
+                          <MenuIcon path={item.icon} />
+                        </span>
+                        {!collapsed && <span className="truncate">{item.label}</span>}
+                        {!collapsed && item.badge && (
+                          <span className="ml-auto inline-flex items-center justify-center px-1.5 py-0.5 rounded-full text-[10px] font-bold bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300">
+                            {item.badge}
+                          </span>
+                        )}
+                      </button>
                     )}
                   </li>
                 );
