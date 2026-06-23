@@ -8,6 +8,7 @@ const Dashboard = lazy(() => import("./pages/admin/Dashboard"));
 const AktivitasTerkini = lazy(() => import("./pages/admin/AktivitasTerkini"));
 const DaftarPelanggan = lazy(() => import("./pages/admin/DaftarPelanggan"));
 const LogAktivitas = lazy(() => import("./pages/admin/pelanggan/LogAktivitas"));
+const SecurityPolicy = lazy(() => import("./pages/SecurityPolicy"));
 
 function App() {
   return (
@@ -20,6 +21,7 @@ function App() {
           <Route path="/admin/dashboard/aktivitas" element={<AktivitasTerkini />} />
           <Route path="/admin/pelanggan" element={<DaftarPelanggan />} />
           <Route path="/admin/pelanggan/aktivitas" element={<LogAktivitas />} />
+          <Route path="/security" element={<SecurityPolicy />} />
         </Routes>
       </Suspense>
     </BrowserRouter>

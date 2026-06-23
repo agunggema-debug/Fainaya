@@ -1,3 +1,5 @@
+import { Link } from "react-router-dom";
+
 interface FooterProps {
   t: (key: string) => string;
 }
@@ -37,7 +39,7 @@ export default function Footer({ t }: FooterProps) {
                   {t(link.key)}
                 </button>
               ))}
-              <a href="/security.html" className="block text-sm text-slate-400 hover:text-white transition-colors">{t('nav_security')}</a>
+              <Link to="/security" className="block text-sm text-slate-400 hover:text-white transition-colors">{t('nav_security')}</Link>
             </div>
           </div>
 
