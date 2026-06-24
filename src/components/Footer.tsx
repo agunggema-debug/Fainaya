@@ -47,6 +47,7 @@ export default function Footer({ t }: FooterProps) {
           <div>
             <h4 className="font-semibold text-lg mb-4">{t('footer_services')}</h4>
             <div className="space-y-2">
+              <span className="block text-sm text-slate-400">{t('opt_system_dev')}</span>
               <span className="block text-sm text-slate-400">{t('opt_computer_repair')}</span>
               <span className="block text-sm text-slate-400">{t('opt_networking')}</span>
               <span className="block text-sm text-slate-400">{t('opt_digital_design')}</span>

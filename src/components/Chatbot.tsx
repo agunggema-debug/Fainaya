@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { getBotResponse } from '../data/chatbotResponses';
+import botAvatar from '../../img/28x28.png';
 
 interface ChatbotProps {
   lang: string;
@@ -46,11 +47,7 @@ export default function Chatbot({ lang }: ChatbotProps) {
         <div className="chatbot-window">
           <div className="chatbot-header">
             <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-full bg-gradient-to-br from-brand-blue to-brand-coral flex items-center justify-center">
-                <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
-                </svg>
-              </div>
+              <img src={botAvatar} alt="Fainaya" className="w-8 h-8 rounded-full" />
               <div>
                 <span className="text-sm font-bold text-white">Fainaya Assistant</span>
                 <span className="text-xs text-green-400 block">Online</span>
@@ -65,9 +62,7 @@ export default function Chatbot({ lang }: ChatbotProps) {
               <div key={i} className={`chatbot-msg ${msg.type}`}>
                 <div className="chatbot-avatar">
                   {msg.type === 'bot' ? (
-                    <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
-                    </svg>
+                    <img src={botAvatar} alt="Fainaya" className="w-4 h-4" />
                   ) : (
                     <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
@@ -82,9 +77,7 @@ export default function Chatbot({ lang }: ChatbotProps) {
             {isTyping && (
               <div className="chatbot-msg bot">
                 <div className="chatbot-avatar">
-                  <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
-                  </svg>
+                  <img src={botAvatar} alt="Fainaya" className="w-4 h-4" />
                 </div>
                 <div className="chatbot-typing"><span></span><span></span><span></span></div>
               </div>
