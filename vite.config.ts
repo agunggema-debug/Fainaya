@@ -10,6 +10,12 @@ export default defineConfig({
           if (id.includes("@supabase")) {
             return "supabase";
           }
+          if (id.includes("recharts")) {
+            return "charts";
+          }
+          if (id.includes("react") || id.includes("scheduler")) {
+            return "framework";
+          }
           if (id.includes("node_modules")) {
             return "vendor";
           }

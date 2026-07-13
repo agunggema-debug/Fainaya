@@ -5,6 +5,9 @@ import { fetchSupabaseTotalStats, fetchSupabaseDailyStats, getLocalTotalStats, g
 import type { DailyStats, PageStats } from "../../data/visitorTracker";
 import Sidebar from "../../components/admin/Sidebar";
 import TopNav from "../../components/admin/TopNav";
+import { VisitorAreaChart, DailyBarChart, ActiveUsersCard, CustomersDemographicSection } from "../../components/admin/charts";
+import { fetchActiveUsersSummary, fetchCustomerDemographics } from "../../data/dashboardPelanggan";
+import type { ActiveUsersSummary, CustomerDemographic } from "../../data/dashboardPelanggan";
 
 type DashboardData = {
   totalVisitors: number;
@@ -95,6 +98,9 @@ export default function Dashboard() {
   const [dataLoading, setDataLoading] = useState(true);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [dataSource, setDataSource] = useState<"supabase" | "local">("local");
+  const [activeUsers, setActiveUsers] = useState<ActiveUsersSummary | null>(null);
+  const [customerDemographic, setCustomerDemographic] = useState<CustomerDemographic | null>(null);
+  const [pelangganLoading, setPelangganLoading] = useState(true);
 
   useEffect(() => {
     async function loadData() {
@@ -120,6 +126,22 @@ export default function Dashboard() {
       setDataLoading(false);
     }
     loadData();
+
+    // Load pelanggan dashboard data (active users & demographics)
+    async function loadPelangganData() {
+      try {
+        const [active, demo] = await Promise.all([
+          fetchActiveUsersSummary(),
+          fetchCustomerDemographics(),
+        ]);
+        setActiveUsers(active);
+        setCustomerDemographic(demo);
+      } catch {
+        // fallback already handled inside fetch functions
+      }
+      setPelangganLoading(false);
+    }
+    loadPelangganData();
   }, []);
 
   const getDaysFromRange = (range: TimeRange): number => {
@@ -232,6 +254,40 @@ export default function Dashboard() {
             </svg>
           }
         />
+      </div>
+    );
+  }
+
+  function renderCharts() {
+    return (
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+        {/* Area Chart: Visitors & Pageviews over time */}
+        <div className="rounded-xl bg-white dark:bg-gray-900 p-6 shadow-sm ring-1 ring-gray-200/60 dark:ring-gray-800 hover:shadow-md transition-shadow duration-200">
+          <div className="flex items-center justify-between mb-5">
+            <div>
+              <h2 className="text-base font-semibold text-gray-900 dark:text-gray-100">Visitor Analytics</h2>
+              <p className="mt-0.5 text-sm text-gray-500 dark:text-gray-400">Visitors & Pageviews over time</p>
+            </div>
+            <div className="flex items-center gap-1.5 text-xs text-gray-400 dark:text-gray-500">
+              <span className="inline-block h-2.5 w-2.5 rounded-full bg-indigo-500" />
+              <span>Visitors</span>
+              <span className="inline-block h-2.5 w-2.5 rounded-full bg-orange-500 ml-2" />
+              <span>Pageviews</span>
+            </div>
+          </div>
+          <VisitorAreaChart data={dailyStats} />
+        </div>
+
+        {/* Bar Chart: Daily comparison */}
+        <div className="rounded-xl bg-white dark:bg-gray-900 p-6 shadow-sm ring-1 ring-gray-200/60 dark:ring-gray-800 hover:shadow-md transition-shadow duration-200">
+          <div className="flex items-center justify-between mb-5">
+            <div>
+              <h2 className="text-base font-semibold text-gray-900 dark:text-gray-100">Daily Comparison</h2>
+              <p className="mt-0.5 text-sm text-gray-500 dark:text-gray-400">Bar chart per-day breakdown</p>
+            </div>
+          </div>
+          <DailyBarChart data={dailyStats} />
+        </div>
       </div>
     );
   }
@@ -447,11 +503,46 @@ export default function Dashboard() {
 
             {renderStatsGrid()}
 
+            {/* Charts: Visitor Analytics & Daily Comparison */}
+            {renderCharts()}
+
             {/* Bottom Grid: Top Pages + Daily Breakdown */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
               {renderTopPages()}
               {renderDailyBreakdown()}
             </div>
+
+            {/* ── Active Users & Customers Demographic ── */}
+            {pelangganLoading ? (
+              <div className="mt-10 grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <div className="rounded-xl bg-white dark:bg-gray-900 p-6 shadow-sm ring-1 ring-gray-200/60 dark:ring-gray-800 animate-pulse">
+                  <div className="h-4 w-28 bg-gray-200 dark:bg-gray-700 rounded mb-4" />
+                  <div className="h-3 w-44 bg-gray-200 dark:bg-gray-700 rounded mb-5" />
+                  <div className="grid grid-cols-2 gap-4 mb-5">
+                    <div className="h-24 bg-gray-100 dark:bg-gray-800 rounded-xl" />
+                    <div className="h-24 bg-gray-100 dark:bg-gray-800 rounded-xl" />
+                  </div>
+                  <div className="h-10 bg-gray-100 dark:bg-gray-800 rounded-lg mb-5" />
+                  <div className="h-10 bg-gray-100 dark:bg-gray-800 rounded-lg mb-5" />
+                  <div className="space-y-2">
+                    {[1,2,3,4,5].map(i => <div key={i} className="h-5 bg-gray-100 dark:bg-gray-800 rounded" />)}
+                  </div>
+                </div>
+                <div className="rounded-xl bg-white dark:bg-gray-900 p-6 shadow-sm ring-1 ring-gray-200/60 dark:ring-gray-800 animate-pulse">
+                  <div className="h-4 w-36 bg-gray-200 dark:bg-gray-700 rounded mb-4" />
+                  <div className="h-3 w-52 bg-gray-200 dark:bg-gray-700 rounded mb-5" />
+                  <div className="h-28 bg-gray-100 dark:bg-gray-800 rounded-lg mb-5" />
+                  <div className="h-28 bg-gray-100 dark:bg-gray-800 rounded-lg" />
+                </div>
+              </div>
+            ) : (
+              activeUsers && customerDemographic && (
+                <div className="mt-10 grid grid-cols-1 lg:grid-cols-2 gap-8">
+                  <ActiveUsersCard data={activeUsers} />
+                  <CustomersDemographicSection data={customerDemographic} />
+                </div>
+              )
+            )}
 
             {/* Footer */}
             {renderFooter()}
