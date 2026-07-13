@@ -7,9 +7,14 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
+# Dependencies
 node_modules
+
+# Build output
 dist
 dist-ssr
+
+# Local config files
 *.local
 
 # Editor directories and files
@@ -22,11 +27,60 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Project-specific markdown (internal notes)
 dashboarb.md
 implementasi.md
+
 # Environment variables (API keys, secrets)
 .env
 .env.local
 .env.production
 .env.development
+.env.staging
+.env.test
 .env.*.local
+
+# SSL / Certificates / Keys
+*.pem
+*.key
+*.cert
+*.p12
+*.pfx
+*.keystore
+*.jks
+
+# Credential / Service account files
+credentials.json
+service-account.json
+service_account.json
+client_secret*.json
+*.cred
+*.credentials
+
+# Supabase local development (if any)
+supabase/.temp
+supabase/.branches
+supabase/.env
+
+# Windows thumbnail cache
+Thumbs.db
+ehthumbs.db
+
+# macOS system files
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon?
+._*
+
+# IDE / Editor
+*.swp
+*.swo
+*~
+.idea/
+.vscode/
+*.iml
+.project
+.classpath
+.settings/
