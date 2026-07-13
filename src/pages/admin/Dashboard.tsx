@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../hooks/useAuth";
 import { fetchSupabaseTotalStats, fetchSupabaseDailyStats, getLocalTotalStats, getLocalDailyStats } from "../../data/visitorTracker";
@@ -27,26 +27,62 @@ function BarChart({ data, color, gradientFrom, gradientTo }: Readonly<{
 }>) {
   const max = Math.max(...data.map((d) => d.value), 1);
   const [animating, setAnimating] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [canScroll, setCanScroll] = useState(false);
 
   useEffect(() => {
     const t = setTimeout(() => setAnimating(true), 50);
     return () => clearTimeout(t);
   }, [data]);
 
+  useEffect(() => {
+    if (containerRef.current) {
+      setCanScroll(containerRef.current.scrollWidth > containerRef.current.clientWidth);
+    }
+  }, [data.length]);
+
+  /* dynamic sizing based on data count */
+  const dataCount = data.length;
+  const isCompact = dataCount > 14;
+
+  const barMinWidth = isCompact ? "16px" : "22px";
+  const barGap = isCompact ? "2px" : "6px";
+  const labelFontSize = isCompact ? "text-[9px] sm:text-[10px]" : "text-[10px] sm:text-[11px]";
+
   return (
     <div className="relative">
       {/* subtle grid lines */}
-      <div className="absolute inset-0 flex flex-col justify-between pointer-events-none px-1">
+      <div className="absolute inset-0 flex flex-col justify-between pointer-events-none">
         {[0, 25, 50, 75, 100].map((pct) => (
           <div key={pct} className="border-b border-dashed border-gray-100/60 dark:border-gray-800/40 h-0 w-full" style={{ marginTop: pct === 0 ? 0 : undefined }} />
         ))}
       </div>
 
-      <div className="flex items-end gap-1 sm:gap-2.5 h-48 sm:h-56 pt-6 relative z-10">
+      {/* scroll indicator */}
+      {canScroll && (
+        <div className="absolute -right-1 top-1/2 -translate-y-1/2 z-20">
+          <div className="w-6 h-12 rounded-l-lg bg-gradient-to-l from-gray-900/10 dark:from-gray-900/30 to-transparent flex items-center justify-center">
+            <svg className="w-4 h-4 text-gray-400 animate-pulse" fill="none" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
+            </svg>
+          </div>
+        </div>
+      )}
+
+      <div
+        ref={containerRef}
+        className="flex items-end overflow-x-auto pb-2 relative z-10 scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-700 scrollbar-track-transparent"
+        style={{
+          gap: barGap,
+          height: isCompact ? "12rem" : "14rem",
+          paddingTop: "1.5rem",
+        }}
+      >
         {data.map((item, idx) => {
-          const pct = Math.max((item.value / max) * 100, 4);
+          const pct = Math.max((item.value / max) * 100, isCompact ? 8 : 6);
           return (
-            <div key={item.label} className="flex-1 flex flex-col items-center gap-2 group relative">
+            <div key={item.label} className="flex flex-col items-center gap-1.5 group relative shrink-0"
+              style={{ width: isCompact ? "min(calc(100% / 14), 40px)" : "min(calc(100% / 7), 60px)", minWidth: barMinWidth }}>
               {/* tooltip */}
               <div className="absolute -top-8 sm:-top-9 left-1/2 -translate-x-1/2 px-2.5 py-1.5 rounded-lg bg-gray-900 dark:bg-gray-700 text-[11px] font-semibold text-white shadow-xl border border-gray-700/30 opacity-0 group-hover:opacity-100 transition-all duration-200 translate-y-1 group-hover:translate-y-0 whitespace-nowrap z-20 pointer-events-none">
                 <div className="flex items-center gap-2">
@@ -58,20 +94,20 @@ function BarChart({ data, color, gradientFrom, gradientTo }: Readonly<{
 
               {/* bar wrapper */}
               <div
-                className="w-full rounded-lg relative cursor-pointer transition-all duration-300 ease-out group-hover:scale-[1.02] group-hover:shadow-lg"
+                className="w-full rounded-md relative cursor-pointer transition-all duration-300 ease-out group-hover:scale-[1.04] group-hover:shadow-lg"
                 style={{
                   height: animating ? `${pct}%` : "0%",
-                  minHeight: animating ? "8px" : "0px",
+                  minHeight: animating ? (isCompact ? "6px" : "8px") : "0px",
                   transitionDelay: `${idx * 30}ms`,
                   transitionDuration: "600ms",
                 }}
               >
-                {/* bar body */}
+                {/* bar body with border */}
                 <div
-                  className="absolute inset-0 rounded-lg transition-all duration-500 overflow-hidden"
+                  className="absolute inset-0 rounded-md transition-all duration-500 overflow-hidden border border-white/20 dark:border-white/10"
                   style={{
                     background: `linear-gradient(180deg, ${gradientFrom} 0%, ${gradientTo} 100%)`,
-                    boxShadow: `0 4px 20px -4px ${color}40, inset 0 1px 0 ${color}60`,
+                    boxShadow: `0 4px 20px -4px ${color}40, 0 1px 3px -1px ${color}30, inset 0 1px 0 ${color}60`,
                   }}
                 >
                   {/* shimmer overlay */}
@@ -82,7 +118,7 @@ function BarChart({ data, color, gradientFrom, gradientTo }: Readonly<{
                     }}
                   />
                   {/* top highlight */}
-                  <div className="absolute top-0 left-0 right-0 h-1/2 rounded-t-lg"
+                  <div className="absolute top-0 left-0 right-0 h-1/2 rounded-t-md"
                     style={{
                       background: `linear-gradient(180deg, rgba(255,255,255,0.25) 0%, transparent 100%)`,
                     }}
@@ -97,7 +133,8 @@ function BarChart({ data, color, gradientFrom, gradientTo }: Readonly<{
               </div>
 
               {/* label */}
-              <span className="text-[10px] sm:text-[11px] font-medium text-gray-400 dark:text-gray-500 truncate w-full text-center leading-tight pb-1">
+              <span className={`${labelFontSize} font-medium text-gray-400 dark:text-gray-500 truncate w-full text-center leading-tight pb-1`}
+                title={item.label}>
                 {item.label}
               </span>
             </div>
