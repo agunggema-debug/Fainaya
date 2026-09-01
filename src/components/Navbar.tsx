@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 
 interface NavbarProps {
   t: (key: string) => string;
@@ -76,6 +77,12 @@ export default function Navbar({ t, lang, setLanguage, user, loading, onLoginCli
                 {t(link.key)}
               </button>
             ))}
+            <Link
+              to="/blog"
+              className={`text-sm font-medium transition-colors ${scrolled ? 'text-slate-600 hover:text-brand-blue' : 'text-white/80 hover:text-white'}`}
+            >
+              {t('nav_blog')}
+            </Link>
           </div>
 
           {/* Right: Desktop actions */}
@@ -238,6 +245,14 @@ export default function Navbar({ t, lang, setLanguage, user, loading, onLoginCli
                 {t(link.key)}
               </button>
             ))}
+            <Link
+              to="/blog"
+              onClick={closeMobile}
+              className="group flex items-center gap-3 text-lg font-semibold text-slate-700 hover:text-brand-blue transition-all"
+            >
+              <span className="w-1 h-6 bg-brand-blue rounded-full opacity-0 group-hover:opacity-100 transition-opacity"></span>
+              {t('nav_blog')}
+            </Link>
           </div>
 
           <div className="mt-auto p-6 border-t border-slate-100 space-y-3">

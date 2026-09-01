@@ -40,6 +40,7 @@ export default function Footer({ t }: FooterProps) {
                 </button>
               ))}
               <Link to="/security" className="block text-sm text-slate-400 hover:text-white transition-colors">{t('nav_security')}</Link>
+              <Link to="/blog" className="block text-sm text-slate-400 hover:text-white transition-colors">{t('nav_blog')}</Link>
             </div>
           </div>
 
