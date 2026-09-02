@@ -34,20 +34,10 @@ function GambarFigure({ caption }: Readonly<{ caption: string }>) {
   const src = resolveGambarImage(caption);
   return src ? (
     <figure className="my-6">
-      <img
-        src={src}
-        alt={caption}
-        loading="lazy"
-        className="w-full rounded-2xl border border-slate-100 shadow-sm object-cover"
-      />
-      {caption && (
-        <figcaption className="mt-2 text-xs text-slate-400 text-center italic">{caption}</figcaption>
-      )}
+      <img src={src} alt={caption} loading="lazy" className="w-full rounded-2xl border border-slate-100 shadow-sm object-cover" />
     </figure>
   ) : (
-    <figure className="my-5 rounded-2xl bg-gradient-to-r from-brand-blue/5 to-brand-coral/5 border border-slate-100 p-6 text-sm text-slate-500">
-      🖼️ {caption}
-    </figure>
+    <figure className="my-5 rounded-2xl bg-gradient-to-r from-brand-blue/5 to-brand-coral/5 border border-slate-100 p-6 text-sm text-slate-500">🖼️ {caption}</figure>
   );
 }
 
@@ -82,7 +72,7 @@ function renderMarkdown(content: string) {
     blocks.push(
       <p key={key++} className="text-base leading-relaxed text-slate-600 mb-5">
         {renderInline(para.join(" "))}
-      </p>
+      </p>,
     );
     para = [];
   };
@@ -101,7 +91,7 @@ function renderMarkdown(content: string) {
         <h2 key={key++} className="text-2xl font-bold text-slate-900 mt-10 mb-4 flex items-center gap-2">
           <span className="w-1.5 h-6 bg-brand-blue rounded-full" />
           {h[1]}
-        </h2>
+        </h2>,
       );
       continue;
     }
@@ -185,10 +175,7 @@ export default function BlogPost() {
     <>
       <section className="pt-32 pb-20 bg-brand-light min-h-screen">
         <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
-          <Link
-            to="/blog"
-            className="inline-flex items-center gap-2 text-sm text-slate-600 hover:text-brand-blue transition-colors mb-8 group"
-          >
+          <Link to="/blog" className="inline-flex items-center gap-2 text-sm text-slate-600 hover:text-brand-blue transition-colors mb-8 group">
             <svg className="w-4 h-4 transform group-hover:-translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7" />
             </svg>
@@ -196,36 +183,23 @@ export default function BlogPost() {
           </Link>
 
           <div className="flex items-center gap-3 text-xs text-slate-500 mb-4">
-            <span className="inline-flex items-center gap-1.5 rounded-full bg-brand-blue/10 px-3 py-1 font-semibold text-brand-blue">
-              Blog
-            </span>
-            <span className="inline-flex rounded-full bg-brand-coral/10 px-2.5 py-0.5 font-semibold text-brand-coral">
-              {post.kategori || "Umum"}
-            </span>
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-brand-blue/10 px-3 py-1 font-semibold text-brand-blue">Blog</span>
+            <span className="inline-flex rounded-full bg-brand-coral/10 px-2.5 py-0.5 font-semibold text-brand-coral">{post.kategori || "Umum"}</span>
             <span>{post.author || "Fainaya"}</span>
             <span>&middot;</span>
             <span>{dateStr}</span>
           </div>
 
-          <h1 className="text-3xl sm:text-4xl font-extrabold text-slate-900 leading-tight mb-8">
-            {post.title}
-          </h1>
+          <h1 className="text-3xl sm:text-4xl font-extrabold text-slate-900 leading-tight mb-8">{post.title}</h1>
 
-          {post.excerpt && (
-            <p className="text-lg text-slate-500 border-l-4 border-brand-blue pl-4 italic mb-8">
-              {post.excerpt}
-            </p>
-          )}
+          {post.excerpt && <p className="text-lg text-slate-500 border-l-4 border-brand-blue pl-4 italic mb-8">{post.excerpt}</p>}
 
           <article className="max-w-none">{renderMarkdown(post.content)}</article>
 
           <div className="mt-12 rounded-2xl bg-gradient-to-r from-brand-blue to-brand-coral p-8 text-white text-center">
             <h2 className="text-xl font-bold mb-2">Butuh bantuan IT untuk usaha kamu?</h2>
             <p className="text-white/90 mb-4 text-sm">Serahkan urusan teknologi ke ahlinya.</p>
-            <Link
-              to="/#contact"
-              className="inline-flex items-center gap-2 rounded-full bg-white text-brand-blue px-6 py-2.5 text-sm font-bold shadow-lg hover:shadow-xl transition-all"
-            >
+            <Link to="/#contact" className="inline-flex items-center gap-2 rounded-full bg-white text-brand-blue px-6 py-2.5 text-sm font-bold shadow-lg hover:shadow-xl transition-all">
               Konsultasi Gratis
             </Link>
           </div>
