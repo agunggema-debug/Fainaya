@@ -13,7 +13,7 @@ Platform manajemen bisnis terpadu berbasis web untuk Fainaya, mencakup layanan I
 ## Fitur Utama
 
 ### Ringkasan & Utama
-- Dashboard / Beranda — ringkasan aktivitas dan metrik bisnis
+- Dashboard / Beranda — tampilan **Ext JS 2.0 style web desktop** (wallpaper, ikon shortcut, window, Start menu, taskbar)
 - Manajemen Pelanggan / Klien
 
 ### Layanan IT
@@ -31,6 +31,34 @@ Platform manajemen bisnis terpadu berbasis web untuk Fainaya, mencakup layanan I
 ### Pengaturan
 - Integrasi Chatbot & Website
 - Pengaturan Sistem — pengaturan umum dan keamanan akses
+
+## Tampilan Desktop (Ext JS 2.0 style)
+
+Halaman `/admin/dashboard` dirender sebagai web desktop bergaya Ext JS 2.0:
+
+- **Wallpaper + ikon shortcut** — klik untuk memilih, klik 2x (atau Enter) untuk membuka.
+- **Window** — digeser lewat title bar, di-resize dari sudut kanan bawah, minimize/maximize/close lewat tombol di title bar, dan di-fokuskan dengan klik. Window yang diminimize tetap tampil sebagai tombol di taskbar.
+- **Start menu** — memuat seluruh struktur menu admin (sumber data sama dengan sidebar klasik) plus tombol logout.
+- **Taskbar** — Start button, quick launch, task button untuk window yang terbuka, dan system tray: pencarian global (`Ctrl + K`), notifikasi, pengalih tema terang/gelap, menu akun, serta jam digital.
+- **Toolbar window** — tombol Ext style di dalam window (pemilih rentang 7d/14d/30d, Refresh, dan Export CSV).
+- **Responsif** — pada layar sempit window otomatis terbuka dalam keadaan maximize, dan halaman admin lainnya tetap memakai layout sidebar klasik.
+
+Komponen desktop berada di `src/components/admin/desktop/`:
+
+```
+desktop/
+├── DesktopShell.tsx        # Wallpaper, layer window, start menu & taskbar
+├── DesktopWindow.tsx       # Window Ext style (drag, resize, minimize, maximize)
+├── DesktopShortcut.tsx     # Ikon shortcut desktop
+├── StartMenu.tsx           # Start menu (struktur menu admin)
+├── Taskbar.tsx             # Start button, task list, system tray & jam
+├── DesktopSplash.tsx       # Splash screen saat memuat data
+├── useDesktopWindows.ts    # Window manager (z-index, posisi, ukuran, state)
+└── types.ts                # Tipe DesktopWindowDef / DesktopShortcutDef
+```
+
+Struktur menu admin terpusat di `src/data/adminMenu.ts` dan data notifikasi di
+`src/data/notifications.ts` — dipakai bersama oleh desktop dan layout sidebar klasik.
 
 ## Memulai
 
@@ -52,7 +80,7 @@ npm run preview
 
 ```
 src/
-├── components/       # Komponen UI (Sidebar, TopNav, dll)
+├── components/       # Komponen UI (Sidebar, TopNav, chart, desktop, dll)
 ├── data/             # Data layer & konfigurasi Supabase
 ├── hooks/            # Custom React hooks
 ├── pages/            # Halaman aplikasi

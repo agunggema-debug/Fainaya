@@ -1,10 +1,12 @@
-import { useState, useEffect } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../hooks/useAuth";
 import { fetchSupabaseTotalStats, fetchSupabaseDailyStats, getLocalTotalStats, getLocalDailyStats } from "../../data/visitorTracker";
 import type { DailyStats, PageStats } from "../../data/visitorTracker";
-import Sidebar from "../../components/admin/Sidebar";
-import TopNav from "../../components/admin/TopNav";
+import { MENU_ICONS } from "../../data/adminMenu";
+import { SAMPLE_NOTIFICATIONS } from "../../data/notifications";
+import { DesktopShell, DesktopSplash } from "../../components/admin/desktop";
+import type { DesktopShortcutDef, DesktopWindowDef } from "../../components/admin/desktop";
 import { VisitorAreaChart, DailyBarChart, ActiveUsersCard, CustomersDemographicSection } from "../../components/admin/charts";
 import { fetchActiveUsersSummary, fetchCustomerDemographics } from "../../data/dashboardPelanggan";
 import type { ActiveUsersSummary, CustomerDemographic } from "../../data/dashboardPelanggan";
@@ -96,53 +98,57 @@ export default function Dashboard() {
   const [dailyStats, setDailyStats] = useState<DailyStats[]>([]);
   const [timeRange, setTimeRange] = useState<TimeRange>("14d");
   const [dataLoading, setDataLoading] = useState(true);
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [dataSource, setDataSource] = useState<"supabase" | "local">("local");
   const [activeUsers, setActiveUsers] = useState<ActiveUsersSummary | null>(null);
   const [customerDemographic, setCustomerDemographic] = useState<CustomerDemographic | null>(null);
   const [pelangganLoading, setPelangganLoading] = useState(true);
 
-  useEffect(() => {
-    async function loadData() {
-      try {
-        const supabaseData = await fetchSupabaseTotalStats();
-        if (supabaseData && supabaseData.totalDays > 0) {
-          setData(supabaseData);
-          setDailyStats(supabaseData.dailyStats);
-          setDataSource("supabase");
-        } else {
-          const localData = getLocalTotalStats();
-          setData(localData);
-          setDailyStats(localData.dailyStats);
-          setDataSource("local");
-        }
-      } catch {
+  /* ── Data loader visitor: dipakai saat mount & tombol Refresh di toolbar window ── */
+  const loadVisitorData = useCallback(async () => {
+    try {
+      const supabaseData = await fetchSupabaseTotalStats();
+      if (supabaseData && supabaseData.totalDays > 0) {
+        setData(supabaseData);
+        setDailyStats(supabaseData.dailyStats);
+        setDataSource("supabase");
+      } else {
         const localData = getLocalTotalStats();
         setData(localData);
         setDailyStats(localData.dailyStats);
         setDataSource("local");
       }
-
-      setDataLoading(false);
+    } catch {
+      const localData = getLocalTotalStats();
+      setData(localData);
+      setDailyStats(localData.dailyStats);
+      setDataSource("local");
     }
-    loadData();
 
-    // Load pelanggan dashboard data (active users & demographics)
-    async function loadPelangganData() {
-      try {
-        const [active, demo] = await Promise.all([
-          fetchActiveUsersSummary(),
-          fetchCustomerDemographics(),
-        ]);
-        setActiveUsers(active);
-        setCustomerDemographic(demo);
-      } catch {
-        // fallback already handled inside fetch functions
-      }
-      setPelangganLoading(false);
-    }
-    loadPelangganData();
+    setDataLoading(false);
   }, []);
+
+  /* ── Data loader pelanggan: active users & demografi ── */
+  const loadPelangganData = useCallback(async () => {
+    try {
+      const [active, demo] = await Promise.all([
+        fetchActiveUsersSummary(),
+        fetchCustomerDemographics(),
+      ]);
+      setActiveUsers(active);
+      setCustomerDemographic(demo);
+    } catch {
+      // fallback already handled inside fetch functions
+    }
+    setPelangganLoading(false);
+  }, []);
+
+  useEffect(() => {
+    async function loadAll() {
+      await loadVisitorData();
+      await loadPelangganData();
+    }
+    loadAll();
+  }, [loadVisitorData, loadPelangganData]);
 
   const getDaysFromRange = (range: TimeRange): number => {
     if (range === "7d") return 7;
@@ -168,12 +174,7 @@ export default function Dashboard() {
   };
 
   if (loading || dataLoading) {
-    return (
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-950 flex flex-col items-center justify-center gap-4">
-        <div className="h-10 w-10 animate-spin rounded-full border-[3px] border-gray-200 dark:border-gray-700 border-t-indigo-500 dark:border-t-indigo-400" />
-        <p className="text-sm text-gray-500 dark:text-gray-400 font-medium">Loading dashboard...</p>
-      </div>
-    );
+    return <DesktopSplash detail="Menyiapkan window, taskbar, dan data visitor..." />;
   }
 
   if (!user) {
@@ -192,6 +193,31 @@ export default function Dashboard() {
 
   const handleSearch = (query: string) => {
     console.log("Search:", query);
+  };
+
+  /* Tombol Refresh pada toolbar window (Ext style) */
+  const handleRefresh = () => {
+    loadVisitorData();
+    loadPelangganData();
+  };
+
+  /* Tombol Export pada toolbar window: unduh data harian sebagai CSV */
+  const handleExport = () => {
+    if (dailyStats.length === 0) return;
+    const rows = [
+      ["date", "visitors", "pageviews"],
+      ...dailyStats.map((day) => [day.date, String(day.visitors), String(day.pageviews)]),
+    ];
+    const csv = rows.map((row) => row.join(",")).join("\n");
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `fainaya-visitor-${new Date().toISOString().slice(0, 10)}.csv`;
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    URL.revokeObjectURL(url);
   };
 
   const totalVisitorsTrend = dailyStats.length >= 7
@@ -446,109 +472,207 @@ export default function Dashboard() {
     );
   }
 
-  return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-950 flex transition-colors duration-200">
-      {/* Sidebar */}
-      <Sidebar
-        activePath="/admin/dashboard"
-        onNavigate={handleNavigate}
-        collapsed={sidebarCollapsed}
-        onToggle={() => setSidebarCollapsed(!sidebarCollapsed)}
-      />
+  /* ── Toolbar window "Visitor Analytics" (tombol Ext style) ── */
+  const analyticsToolbar = (
+    <>
+      <div className="flex items-center gap-1">
+        <span className="mr-1 text-[10px] tracking-wide text-[#5b7597] uppercase dark:text-gray-400">
+          Rentang
+        </span>
+        {(["7d", "14d", "30d"] as const).map((range) => (
+          <button
+            key={range}
+            type="button"
+            className={`ext-btn ${timeRange === range ? "ext-btn-active" : ""}`}
+            onClick={() => handleTimeChange(range)}
+          >
+            {range}
+          </button>
+        ))}
+      </div>
+      <span className="ext-toolbar-divider h-5" />
+      <button type="button" className="ext-btn" onClick={handleRefresh}>
+        <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor">
+          <path strokeLinecap="round" strokeLinejoin="round" d={MENU_ICONS.refresh} />
+        </svg>
+        Refresh
+      </button>
+      <button type="button" className="ext-btn" onClick={handleExport}>
+        <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor">
+          <path strokeLinecap="round" strokeLinejoin="round" d={MENU_ICONS.download} />
+        </svg>
+        Export CSV
+      </button>
+      <span className="ml-auto text-[10px] text-[#5d7ea6] dark:text-gray-400">
+        {dataSource === "supabase" ? "Sumber: Supabase (visitor_logs)" : "Sumber: data lokal (fallback)"}
+      </span>
+    </>
+  );
 
-      {/* Main Area */}
-      <div className="flex-1 flex flex-col min-w-0">
-        <TopNav
-          userEmail={user.email ?? ""}
-          onSearch={handleSearch}
-          onLogout={doLogout}
-          onNavigate={handleNavigate}
-        />
+  /* ── Isi window "Visitor Analytics" ── */
+  const analyticsContent = (
+    <>
+      <p className="mb-6 text-sm text-gray-500 dark:text-gray-400">
+        Visitor analytics mencakup data dari seluruh pengunjung website, baik yang sudah login maupun belum
+        {" "}(rentang {timeRange}).
+      </p>
+      {renderStatsGrid()}
+      {renderCharts()}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        {renderTopPages()}
+        {renderDailyBreakdown()}
+      </div>
 
-        <main className="flex-1 overflow-y-auto">
-          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8">
+      {/* Footer: status sistem, sumber data & copyright */}
+      {renderFooter()}
+    </>
+  );
 
-            {/* Page Header */}
-            <div className="sm:flex sm:items-center sm:justify-between mb-8">
-              <div>
-                <h1 className="text-xl font-semibold text-gray-900 dark:text-gray-100">Dashboard</h1>
-                <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-                  Visitor analytics mencakup data dari seluruh pengunjung website, baik yang sudah login maupun belum.
-                </p>
-              </div>
-              <div className="mt-4 sm:mt-0 flex items-center gap-3">
-                <div className="flex rounded-lg bg-gray-100 dark:bg-gray-800 p-0.5 ring-1 ring-gray-200/50 dark:ring-gray-700">
-                  {(["7d", "14d", "30d"] as const).map((r) => (
-                    <button
-                      key={r}
-                      onClick={() => handleTimeChange(r)}
-                      className={`px-3 py-1.5 text-sm font-medium rounded-md transition-all ${
-                        timeRange === r
-                          ? "bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 shadow-sm"
-                          : "text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200"
-                      }`}
-                    >
-                      {r}
-                    </button>
-                  ))}
-                </div>
-                <button className="inline-flex items-center gap-2 rounded-lg bg-gray-900 dark:bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-gray-800 dark:hover:bg-blue-700 transition-colors">
-                  <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" />
-                  </svg>
-                  Export
-                </button>
-              </div>
-            </div>
-
-            {renderStatsGrid()}
-
-            {/* Charts: Visitor Analytics & Daily Comparison */}
-            {renderCharts()}
-
-            {/* Bottom Grid: Top Pages + Daily Breakdown */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-              {renderTopPages()}
-              {renderDailyBreakdown()}
-            </div>
-
-            {/* ── Active Users & Customers Demographic ── */}
-            {pelangganLoading ? (
-              <div className="mt-10 grid grid-cols-1 lg:grid-cols-2 gap-8">
-                <div className="rounded-xl bg-white dark:bg-gray-900 p-6 shadow-sm ring-1 ring-gray-200/60 dark:ring-gray-800 animate-pulse">
-                  <div className="h-4 w-28 bg-gray-200 dark:bg-gray-700 rounded mb-4" />
-                  <div className="h-3 w-44 bg-gray-200 dark:bg-gray-700 rounded mb-5" />
-                  <div className="grid grid-cols-2 gap-4 mb-5">
-                    <div className="h-24 bg-gray-100 dark:bg-gray-800 rounded-xl" />
-                    <div className="h-24 bg-gray-100 dark:bg-gray-800 rounded-xl" />
-                  </div>
-                  <div className="h-10 bg-gray-100 dark:bg-gray-800 rounded-lg mb-5" />
-                  <div className="h-10 bg-gray-100 dark:bg-gray-800 rounded-lg mb-5" />
-                  <div className="space-y-2">
-                    {[1,2,3,4,5].map(i => <div key={i} className="h-5 bg-gray-100 dark:bg-gray-800 rounded" />)}
-                  </div>
-                </div>
-                <div className="rounded-xl bg-white dark:bg-gray-900 p-6 shadow-sm ring-1 ring-gray-200/60 dark:ring-gray-800 animate-pulse">
-                  <div className="h-4 w-36 bg-gray-200 dark:bg-gray-700 rounded mb-4" />
-                  <div className="h-3 w-52 bg-gray-200 dark:bg-gray-700 rounded mb-5" />
-                  <div className="h-28 bg-gray-100 dark:bg-gray-800 rounded-lg mb-5" />
-                  <div className="h-28 bg-gray-100 dark:bg-gray-800 rounded-lg" />
-                </div>
-              </div>
-            ) : (
-              activeUsers && customerDemographic && (
-                <div className="mt-10 grid grid-cols-1 lg:grid-cols-2 gap-8">
-                  <ActiveUsersCard data={activeUsers} />
-                  <CustomersDemographicSection data={customerDemographic} />
-                </div>
-              )
-            )}
-
-            {/* Footer */}
-            {renderFooter()}
-          </div>
-        </main>
+/* ── Isi window "Pelanggan & Demografi" ── */
+  const pelangganContent = pelangganLoading ? (
+    <div className="grid grid-cols-1 gap-8 xl:grid-cols-2">
+      <div className="animate-pulse rounded-xl bg-white p-6 shadow-sm ring-1 ring-gray-200/60 dark:bg-gray-900 dark:ring-gray-800">
+        <div className="mb-4 h-4 w-28 rounded bg-gray-200 dark:bg-gray-700" />
+        <div className="mb-5 h-3 w-44 rounded bg-gray-200 dark:bg-gray-700" />
+        <div className="mb-5 grid grid-cols-2 gap-4">
+          <div className="h-24 rounded-xl bg-gray-100 dark:bg-gray-800" />
+          <div className="h-24 rounded-xl bg-gray-100 dark:bg-gray-800" />
+        </div>
+        <div className="mb-5 h-10 rounded-lg bg-gray-100 dark:bg-gray-800" />
+        <div className="mb-5 h-10 rounded-lg bg-gray-100 dark:bg-gray-800" />
+        <div className="space-y-2">
+          {[1, 2, 3, 4, 5].map((i) => (
+            <div key={i} className="h-5 rounded bg-gray-100 dark:bg-gray-800" />
+          ))}
+        </div>
+      </div>
+      <div className="animate-pulse rounded-xl bg-white p-6 shadow-sm ring-1 ring-gray-200/60 dark:bg-gray-900 dark:ring-gray-800">
+        <div className="mb-4 h-4 w-36 rounded bg-gray-200 dark:bg-gray-700" />
+        <div className="mb-5 h-3 w-52 rounded bg-gray-200 dark:bg-gray-700" />
+        <div className="mb-5 h-28 rounded-lg bg-gray-100 dark:bg-gray-800" />
+        <div className="h-28 rounded-lg bg-gray-100 dark:bg-gray-800" />
       </div>
     </div>
+  ) : activeUsers && customerDemographic ? (
+    <div className="grid grid-cols-1 gap-8 xl:grid-cols-2">
+      <ActiveUsersCard data={activeUsers} />
+      <CustomersDemographicSection data={customerDemographic} />
+    </div>
+  ) : null;
+
+  /* ── Isi window "Notifikasi & Chat Masuk" ── */
+  const notificationsContent = (
+    <div className="space-y-3">
+      {SAMPLE_NOTIFICATIONS.map((notif) => {
+        const iconColor =
+          notif.type === "chat"
+            ? "bg-blue-100 text-blue-600 dark:bg-blue-900/40 dark:text-blue-300"
+            : notif.type === "service"
+              ? "bg-orange-100 text-orange-600 dark:bg-orange-900/40 dark:text-orange-300"
+              : "bg-purple-100 text-purple-600 dark:bg-purple-900/40 dark:text-purple-300";
+        return (
+          <div
+            key={notif.id}
+            className={`flex items-start gap-3 rounded-lg border p-3 ${
+              notif.unread
+                ? "border-blue-200 bg-blue-50/60 dark:border-blue-900/60 dark:bg-blue-900/20"
+                : "border-gray-200 bg-white dark:border-gray-800 dark:bg-gray-900"
+            }`}
+          >
+            <span className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg ${iconColor}`}>
+              <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" strokeWidth="1.8" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" d={notif.icon} />
+              </svg>
+            </span>
+            <div className="min-w-0 flex-1">
+              <p className="flex items-center gap-1.5 text-xs font-bold text-gray-800 dark:text-gray-200">
+                {notif.title}
+                {notif.unread && <span className="h-1.5 w-1.5 rounded-full bg-blue-400" />}
+              </p>
+              <p className="mt-0.5 text-[11px] leading-relaxed text-gray-500 dark:text-gray-400">
+                {notif.description}
+              </p>
+              <p className="mt-1 text-[10px] text-gray-400 dark:text-gray-500">{notif.time}</p>
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
+
+  /* ── Definisi window desktop ── */
+  const desktopWindows: DesktopWindowDef[] = [
+    {
+      id: "analytics",
+      title: "Fainaya Dashboard — Visitor Analytics",
+      icon: MENU_ICONS.dashboard,
+      path: "/admin/dashboard",
+      openByDefault: true,
+      quickLaunch: true,
+      defaultSize: { width: 1120, height: 620 },
+      minSize: { width: 420, height: 260 },
+      toolbar: analyticsToolbar,
+      statusText: `${dataSource === "supabase" ? "Connected to Supabase" : "Using local fallback"} · visitor_logs`,
+      content: analyticsContent,
+    },
+    {
+      id: "pelanggan",
+      title: "Pelanggan & Demografi",
+      icon: MENU_ICONS.users,
+      quickLaunch: true,
+      defaultSize: { width: 900, height: 560 },
+      minSize: { width: 380, height: 240 },
+      statusText: pelangganLoading ? "Memuat data pelanggan..." : "Active users & demografi pelanggan",
+      content: pelangganContent,
+    },
+    {
+      id: "notifikasi",
+      title: "Notifikasi & Chat Masuk",
+      icon: MENU_ICONS.bell,
+      path: "/admin/notifikasi",
+      defaultSize: { width: 540, height: 440 },
+      minSize: { width: 340, height: 220 },
+      statusText: `${SAMPLE_NOTIFICATIONS.filter((notif) => notif.unread).length} notifikasi belum dibaca`,
+      content: notificationsContent,
+    },
+  ];
+
+  /* ── Ikon shortcut di area desktop (klik 2x untuk membuka) ── */
+  const desktopShortcuts: DesktopShortcutDef[] = [
+    { id: "shortcut-analytics", label: "Visitor Analytics", icon: MENU_ICONS.chart, windowId: "analytics" },
+    { id: "shortcut-pelanggan", label: "Pelanggan", icon: MENU_ICONS.users, windowId: "pelanggan" },
+    { id: "shortcut-notifikasi", label: "Notifikasi", icon: MENU_ICONS.bell, windowId: "notifikasi" },
+    {
+      id: "shortcut-aktivitas",
+      label: "Aktivitas Terkini",
+      icon: MENU_ICONS.clipboard,
+      path: "/admin/dashboard/aktivitas",
+    },
+    {
+      id: "shortcut-daftar-pelanggan",
+      label: "Daftar Pelanggan",
+      icon: MENU_ICONS.collection,
+      path: "/admin/pelanggan",
+    },
+    { id: "shortcut-blog", label: "Blog / Artikel", icon: MENU_ICONS.blog, path: "/admin/blog" },
+    {
+      id: "shortcut-servis",
+      label: "Servis & Perbaikan",
+      icon: MENU_ICONS.wrench,
+      path: "/admin/servis/antrean",
+    },
+    { id: "shortcut-desain", label: "Proyek Desain", icon: MENU_ICONS.paintbrush, path: "/admin/desain/brief" },
+  ];
+
+  return (
+    <DesktopShell
+      userEmail={user.email ?? ""}
+      activePath="/admin/dashboard"
+      shortcuts={desktopShortcuts}
+      windows={desktopWindows}
+      onNavigate={handleNavigate}
+      onSearch={handleSearch}
+      onLogout={doLogout}
+    />
   );
 }
