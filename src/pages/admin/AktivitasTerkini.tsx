@@ -1,8 +1,16 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../hooks/useAuth";
-import Sidebar from "../../components/admin/Sidebar";
-import TopNav from "../../components/admin/TopNav";
+import {
+  AdminDesktopPage,
+  ExtButton,
+  ExtIcon,
+  ExtToolbar,
+  ExtToolbarInfo,
+  datedFilename,
+  downloadCsv,
+} from "../../components/admin/desktop";
+import { MENU_ICONS } from "../../data/adminMenu";
 
 type ActivityItem = {
   id: string;
@@ -106,7 +114,6 @@ const FILTER_OPTIONS: { label: string; value: FilterType }[] = [
 export default function AktivitasTerkini() {
   const { user, loading, logout } = useAuth();
   const navigate = useNavigate();
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [filter, setFilter] = useState<FilterType>("all");
   const [activities, setActivities] = useState<ActivityItem[]>(() => generateActivities());
 
@@ -147,25 +154,44 @@ export default function AktivitasTerkini() {
     order: activities.filter((a) => a.type === "order").length,
   };
 
+  /* ── Toolbar window (Ext style) ── */
+  const pageToolbar = (
+    <ExtToolbar>
+      <ExtButton onClick={() => setActivities(generateActivities())} title="Muat ulang aktivitas">
+        <ExtIcon path={MENU_ICONS.refresh} />
+        Refresh
+      </ExtButton>
+      <span className="ext-toolbar-divider h-5" />
+      <ExtButton
+        onClick={() =>
+          downloadCsv(
+            datedFilename("aktivitas"),
+            ["id", "tipe", "label", "deskripsi", "timestamp"],
+            activities.map((a) => [a.id, a.type, a.label, a.description, a.timestamp]),
+          )
+        }
+      >
+        <ExtIcon path={MENU_ICONS.download} />
+        Export CSV
+      </ExtButton>
+      <ExtToolbarInfo>Real-time feed · {activities.length} aktivitas</ExtToolbarInfo>
+    </ExtToolbar>
+  );
+
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-950 flex transition-colors duration-200">
-      <Sidebar
-        activePath="/admin/dashboard/aktivitas"
-        onNavigate={handleNavigate}
-        collapsed={sidebarCollapsed}
-        onToggle={() => setSidebarCollapsed(!sidebarCollapsed)}
-      />
-
-      <div className="flex-1 flex flex-col min-w-0">
-        <TopNav
-          userEmail={user.email ?? ""}
-          onSearch={handleSearch}
-          onLogout={doLogout}
-          onNavigate={handleNavigate}
-        />
-
-        <main className="flex-1 overflow-y-auto">
-          <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8 py-8">
+    <AdminDesktopPage
+      userEmail={user.email ?? ""}
+      activePath="/admin/dashboard/aktivitas"
+      title="Aktivitas Terkini"
+      icon={MENU_ICONS.clipboard}
+      toolbar={pageToolbar}
+      statusText={`Real-time feed · ${activities.length} aktivitas terbaru`}
+      defaultSize={{ width: 1000, height: 600 }}
+      onNavigate={handleNavigate}
+      onSearch={handleSearch}
+      onLogout={doLogout}
+    >
+      <div className="mx-auto max-w-5xl">
             {/* Page Header */}
             <div className="sm:flex sm:items-center sm:justify-between mb-8">
               <div>
@@ -262,9 +288,7 @@ export default function AktivitasTerkini() {
                 </p>
               </div>
             </footer>
-          </div>
-        </main>
       </div>
-    </div>
+    </AdminDesktopPage>
   );
 }

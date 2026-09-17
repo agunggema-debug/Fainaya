@@ -3,8 +3,16 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../hooks/useAuth";
 import { fetchPelanggan } from "../../data/pelanggan";
 import type { Pelanggan } from "../../data/pelanggan";
-import Sidebar from "../../components/admin/Sidebar";
-import TopNav from "../../components/admin/TopNav";
+import {
+  AdminDesktopPage,
+  ExtButton,
+  ExtIcon,
+  ExtToolbar,
+  ExtToolbarInfo,
+  datedFilename,
+  downloadCsv,
+} from "../../components/admin/desktop";
+import { MENU_ICONS } from "../../data/adminMenu";
 
 /* ───── Status Badge ───── */
 function StatusBadge({ status }: Readonly<{ status: Pelanggan["status"] }>) {
@@ -50,7 +58,6 @@ function StatCard({
 export default function DaftarPelanggan() {
   const { user, loading, logout } = useAuth();
   const navigate = useNavigate();
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<"semua" | "aktif" | "nonaktif">("semua");
   const [pelanggan, setPelanggan] = useState<Pelanggan[]>([]);
@@ -118,25 +125,60 @@ export default function DaftarPelanggan() {
   const totalNonaktif = pelanggan.filter((p) => p.status === "nonaktif").length;
   const totalTransaksi = pelanggan.reduce((sum, p) => sum + p.total_transaksi, 0);
 
+  /* ── Toolbar window (Ext style) ── */
+  const pageToolbar = (
+    <ExtToolbar>
+      <ExtButton onClick={() => setStatusFilter("semua")} active={statusFilter === "semua"}>
+        Semua
+      </ExtButton>
+      <ExtButton onClick={() => setStatusFilter("aktif")} active={statusFilter === "aktif"}>
+        Aktif
+      </ExtButton>
+      <ExtButton onClick={() => setStatusFilter("nonaktif")} active={statusFilter === "nonaktif"}>
+        Nonaktif
+      </ExtButton>
+      <span className="ext-toolbar-divider h-5" />
+      <ExtButton
+        onClick={() =>
+          downloadCsv(
+            datedFilename("pelanggan"),
+            ["kode", "nama", "email", "telepon", "bergabung", "status", "total_transaksi", "terakhir_aktif"],
+            filtered.map((p) => [
+              p.kode,
+              p.nama,
+              p.email,
+              p.telepon,
+              p.bergabung,
+              p.status,
+              p.total_transaksi,
+              p.terakhir_aktif,
+            ]),
+          )
+        }
+      >
+        <ExtIcon path={MENU_ICONS.download} />
+        Export CSV
+      </ExtButton>
+      <ExtToolbarInfo>
+        {filtered.length} dari {pelanggan.length} pelanggan · {dataSource === "supabase" ? "Supabase" : "data lokal"}
+      </ExtToolbarInfo>
+    </ExtToolbar>
+  );
+
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-950 flex transition-colors duration-200">
-      <Sidebar
-        activePath="/admin/pelanggan"
-        onNavigate={handleNavigate}
-        collapsed={sidebarCollapsed}
-        onToggle={() => setSidebarCollapsed(!sidebarCollapsed)}
-      />
-
-      <div className="flex-1 flex flex-col min-w-0">
-        <TopNav
-          userEmail={user.email ?? ""}
-          onSearch={handleSearch}
-          onLogout={doLogout}
-          onNavigate={handleNavigate}
-        />
-
-        <main className="flex-1 overflow-y-auto">
-          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8">
+    <AdminDesktopPage
+      userEmail={user.email ?? ""}
+      activePath="/admin/pelanggan"
+      title="Daftar Pelanggan"
+      icon={MENU_ICONS.users}
+      toolbar={pageToolbar}
+      statusText={`${pelanggan.length} pelanggan · ${dataSource === "supabase" ? "Supabase" : "data lokal"} · tabel pelanggan`}
+      defaultSize={{ width: 1180, height: 620 }}
+      onNavigate={handleNavigate}
+      onSearch={handleSearch}
+      onLogout={doLogout}
+    >
+      <div className="mx-auto max-w-7xl">
             {/* Page Header */}
             <div className="sm:flex sm:items-center sm:justify-between mb-8">
               <div>
@@ -343,9 +385,7 @@ export default function DaftarPelanggan() {
                 </p>
               </div>
             </footer>
-          </div>
-        </main>
       </div>
-    </div>
+    </AdminDesktopPage>
   );
 }

@@ -1,8 +1,16 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../hooks/useAuth";
-import Sidebar from "../../components/admin/Sidebar";
-import TopNav from "../../components/admin/TopNav";
+import {
+  AdminDesktopPage,
+  ExtButton,
+  ExtIcon,
+  ExtToolbar,
+  ExtToolbarInfo,
+  datedFilename,
+  downloadCsv,
+} from "../../components/admin/desktop";
+import { MENU_ICONS } from "../../data/adminMenu";
 import {
   fetchBlogPosts,
   createBlogPost,
@@ -337,7 +345,6 @@ function BlogModal({
 export default function AdminBlog() {
   const { user, loading, logout } = useAuth();
   const navigate = useNavigate();
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [posts, setPosts] = useState<BlogPost[]>([]);
   const [dataLoading, setDataLoading] = useState(true);
   const [dataSource, setDataSource] = useState<"supabase" | "local">("local");
@@ -435,25 +442,46 @@ export default function AdminBlog() {
   const totalPublished = posts.filter((p) => p.status === "published").length;
   const totalDraft = posts.filter((p) => p.status === "draft").length;
 
+  /* ── Toolbar window (Ext style) ── */
+  const pageToolbar = (
+    <ExtToolbar>
+      <ExtButton onClick={() => setModal({ mode: "create", post: null })}>
+        <ExtIcon path={MENU_ICONS.plus} />
+        Artikel Baru
+      </ExtButton>
+      <span className="ext-toolbar-divider h-5" />
+      <ExtButton
+        onClick={() =>
+          downloadCsv(
+            datedFilename("blog"),
+            ["title", "slug", "kategori", "status", "author", "published_at"],
+            filtered.map((p) => [p.title, p.slug, p.kategori, p.status, p.author, p.published_at]),
+          )
+        }
+      >
+        <ExtIcon path={MENU_ICONS.download} />
+        Export CSV
+      </ExtButton>
+      <ExtToolbarInfo>
+        {totalPublished} published · {totalDraft} draft · {filtered.length} dari {posts.length} artikel
+      </ExtToolbarInfo>
+    </ExtToolbar>
+  );
+
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-950 flex transition-colors duration-200">
-      <Sidebar
-        activePath="/admin/blog"
-        onNavigate={handleNavigate}
-        collapsed={sidebarCollapsed}
-        onToggle={() => setSidebarCollapsed(!sidebarCollapsed)}
-      />
-
-      <div className="flex-1 flex flex-col min-w-0">
-        <TopNav
-          userEmail={user.email ?? ""}
-          onSearch={handleSearch}
-          onLogout={doLogout}
-          onNavigate={handleNavigate}
-        />
-
-        <main className="flex-1 overflow-y-auto">
-          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8">
+    <AdminDesktopPage
+      userEmail={user.email ?? ""}
+      activePath="/admin/blog"
+      title="Manajemen Blog"
+      icon={MENU_ICONS.blog}
+      toolbar={pageToolbar}
+      statusText={`${totalPublished} published · ${totalDraft} draft · ${dataSource === "supabase" ? "Supabase" : "data lokal"} · tabel blog_posts`}
+      defaultSize={{ width: 1180, height: 620 }}
+      onNavigate={handleNavigate}
+      onSearch={handleSearch}
+      onLogout={doLogout}
+    >
+      <div className="mx-auto max-w-7xl">
             <div className="sm:flex sm:items-center sm:justify-between mb-8">
               <div>
                 <h1 className="text-xl font-semibold text-gray-900 dark:text-gray-100">Manajemen Blog</h1>
@@ -595,8 +623,6 @@ export default function AdminBlog() {
               </footer>
             </div>
           </div>
-        </main>
-      </div>
 
       {/* Modal */}
       {modal && (
@@ -608,6 +634,6 @@ export default function AdminBlog() {
           onConfirmDelete={handleConfirmDelete}
         />
       )}
-    </div>
+    </AdminDesktopPage>
   );
 }

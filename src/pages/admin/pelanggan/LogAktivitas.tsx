@@ -3,8 +3,16 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../../hooks/useAuth";
 import { fetchLogAktivitas } from "../../../data/pelanggan";
 import type { LogAktivitas } from "../../../data/pelanggan";
-import Sidebar from "../../../components/admin/Sidebar";
-import TopNav from "../../../components/admin/TopNav";
+import {
+  AdminDesktopPage,
+  ExtButton,
+  ExtIcon,
+  ExtToolbar,
+  ExtToolbarInfo,
+  datedFilename,
+  downloadCsv,
+} from "../../../components/admin/desktop";
+import { MENU_ICONS } from "../../../data/adminMenu";
 
 /* ───── Format timestamp ───── */
 function formatTimeAgo(isoString: string): string {
@@ -74,7 +82,6 @@ const FILTER_OPTIONS: { label: string; value: FilterTipe }[] = [
 export default function LogAktivitas() {
   const { user, loading, logout } = useAuth();
   const navigate = useNavigate();
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [filter, setFilter] = useState<FilterTipe>("semua");
   const [searchQuery, setSearchQuery] = useState("");
   const [logs, setLogs] = useState<LogAktivitas[]>([]);
@@ -139,25 +146,54 @@ export default function LogAktivitas() {
     pesanan: logs.filter((l) => l.tipe === "pesanan").length,
   };
 
+  /* ── Toolbar window (Ext style) ── */
+  const pageToolbar = (
+    <ExtToolbar>
+      {([
+        ["semua", "Semua"],
+        ["kunjungan", "Kunjungan"],
+        ["servis", "Servis"],
+        ["transaksi", "Transaksi"],
+        ["profil", "Profil"],
+        ["pesanan", "Pesanan"],
+      ] as const).map(([value, label]) => (
+        <ExtButton key={value} onClick={() => setFilter(value)} active={filter === value}>
+          {label} ({logCounts[value]})
+        </ExtButton>
+      ))}
+      <span className="ext-toolbar-divider h-5" />
+      <ExtButton
+        onClick={() =>
+          downloadCsv(
+            datedFilename("log-aktivitas"),
+            ["kode", "pelanggan_nama", "tipe", "deskripsi", "timestamp"],
+            filtered.map((l) => [l.kode, l.pelanggan_nama, l.tipe, l.deskripsi, l.timestamp]),
+          )
+        }
+      >
+        <ExtIcon path={MENU_ICONS.download} />
+        Export CSV
+      </ExtButton>
+      <ExtToolbarInfo>
+        {filtered.length} dari {logs.length} log · {dataSource === "supabase" ? "Supabase" : "data lokal"}
+      </ExtToolbarInfo>
+    </ExtToolbar>
+  );
+
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-950 flex transition-colors duration-200">
-      <Sidebar
-        activePath="/admin/pelanggan/aktivitas"
-        onNavigate={handleNavigate}
-        collapsed={sidebarCollapsed}
-        onToggle={() => setSidebarCollapsed(!sidebarCollapsed)}
-      />
-
-      <div className="flex-1 flex flex-col min-w-0">
-        <TopNav
-          userEmail={user.email ?? ""}
-          onSearch={handleSearch}
-          onLogout={doLogout}
-          onNavigate={handleNavigate}
-        />
-
-        <main className="flex-1 overflow-y-auto">
-          <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8 py-8">
+    <AdminDesktopPage
+      userEmail={user.email ?? ""}
+      activePath="/admin/pelanggan/aktivitas"
+      title="Log Aktivitas Pelanggan"
+      icon={MENU_ICONS.collection}
+      toolbar={pageToolbar}
+      statusText={`${logs.length} log · ${dataSource === "supabase" ? "Supabase" : "data lokal"} · tabel log_aktivitas`}
+      defaultSize={{ width: 1040, height: 620 }}
+      onNavigate={handleNavigate}
+      onSearch={handleSearch}
+      onLogout={doLogout}
+    >
+      <div className="mx-auto max-w-5xl">
             {/* Page Header */}
             <div className="sm:flex sm:items-center sm:justify-between mb-8">
               <div>
@@ -276,9 +312,7 @@ export default function LogAktivitas() {
                 </p>
               </div>
             </footer>
-          </div>
-        </main>
       </div>
-    </div>
+    </AdminDesktopPage>
   );
 }

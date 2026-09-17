@@ -2,6 +2,7 @@ import { lazy, Suspense } from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import VisitorTracker from "./components/VisitorTracker";
 import HomePage from "./pages/HomePage";
+import { ADMIN_MODUL_ROUTES } from "./data/adminModules";
 
 // Lazy load admin pages
 const Dashboard = lazy(() => import("./pages/admin/Dashboard"));
@@ -12,6 +13,9 @@ const SecurityPolicy = lazy(() => import("./pages/SecurityPolicy"));
 const Blog = lazy(() => import("./pages/Blog"));
 const BlogPost = lazy(() => import("./pages/BlogPost"));
 const AdminBlog = lazy(() => import("./pages/admin/Blog"));
+// Halaman generik untuk modul admin (servis, maintenance, development, desain,
+// kreasi, inventaris, keuangan, integrasi, pengaturan, admin, notifikasi)
+const ModulAdmin = lazy(() => import("./pages/admin/ModulAdmin"));
 
 function App() {
   return (
@@ -28,6 +32,9 @@ function App() {
           <Route path="/blog" element={<Blog />} />
           <Route path="/blog/:slug" element={<BlogPost />} />
           <Route path="/admin/blog" element={<AdminBlog />} />
+          {ADMIN_MODUL_ROUTES.map((route) => (
+            <Route key={route.path} path={route.path} element={<ModulAdmin path={route.path} />} />
+          ))}
         </Routes>
       </Suspense>
     </BrowserRouter>

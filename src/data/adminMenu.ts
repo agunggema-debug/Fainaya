@@ -2,8 +2,13 @@
  * Single source of truth untuk struktur navigasi admin Fainaya.
  *
  * Dipakai oleh:
- *  - `src/components/admin/Sidebar.tsx` (sidebar klasik / mobile)
  *  - `src/components/admin/desktop/StartMenu.tsx` (Ext JS 2.0 style web desktop)
+ *  - `src/components/admin/desktop/AdminDesktopPage.tsx` (shortcut area desktop)
+ *  - `src/data/adminModules.ts` (ikon dataset modul admin)
+ *
+ * Catatan: sejak seluruh halaman admin memakai web desktop Ext JS 2.0,
+ * `Sidebar.tsx` dan `TopNav.tsx` (layout klasik) tidak lagi dipakai — keduanya
+ * disimpan sebagai referensi bila sewaktu-waktu ingin dipakai kembali.
  */
 
 export type MenuItem = {
@@ -63,6 +68,8 @@ export const MENU_ICONS = {
     "M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15",
   download:
     "M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3",
+  plus:
+    "M12 4.5v15m7.5-7.5h-15",
 } as const;
 
 /* ───── Struktur menu (dipakai sidebar & start menu desktop) ───── */
